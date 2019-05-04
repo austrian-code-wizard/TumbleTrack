@@ -133,6 +133,11 @@ class Parser:
 			self._serial_port = None
 			return False
 
+	async def _send_test_message(self):
+		while True:
+			self.send_dataset("hi", 1)
+			await asyncio.sleep(1)
+
 	def run(self) -> bool:
 		if self._serial_port is None:
 			return False
