@@ -2,6 +2,8 @@ import serial
 import asyncio
 from dataclasses import dataclass, field
 from queue import PriorityQueue, Queue, Empty
+from threading import Thread
+from time import sleep
 
 
 @dataclass(order=True)
@@ -19,7 +21,7 @@ class Parser:
 		self._data_out = PriorityQueue()
 		self._serial_port = None
 		self._loop = None
-		self._run = False
+		self._is_running = False
 		self._batch_size = 32
 		self._start_flag = "<"
 		self._end_flag = ">"
@@ -29,6 +31,7 @@ class Parser:
 		self._packet_id_count = 0
 		self._start_message = "start"
 		self._pass_message = "pass"
+		self._thread = None
 
 	@staticmethod
 	def chunkstring(string: str, length: int) -> str:
@@ -59,15 +62,15 @@ class Parser:
 		else:
 			return packet[1:-1]
 
-	def _next_message_id(self):
+	def _next_message_id(self) -> bytes:
 		self._message_id_count += 1
 		return Parser.int_to_bytes(self._message_id_count, self._message_id_bytes)
 
-	def _next_packet_id(self):
+	def _next_packet_id(self) -> bytes:
 		self._packet_id_count += 1
 		return Parser.int_to_bytes(self._packet_id_count, self._packet_id_bytes)
 
-	def send_dataset(self, dataset:str, priority: int) -> bool:
+	def send_dataset(self, dataset: str, priority: int) -> bool:
 		data_set_id = self._next_message_id()
 		content_count = 256 - 2 - self._message_id_bytes - self._packet_id_bytes
 		for packet in Parser.chunkstring(dataset, content_count):
@@ -79,27 +82,27 @@ class Parser:
 	async def _process_incoming_data(self) -> bool:
 		async for data in self._get_next_incoming_packet():
 			if data is not False:
-				self._controller.process_incoming_packet(data)
+				self._controller.handle_command(data)
 			else:
 				await asyncio.sleep(2)
-			if self._run is False:
+			if self._is_running is False:
 				return True
 
 	async def _get_next_outgoing_packet(self) -> PrioritizedItem or bool:
-		while self._run is True:
+		while self._is_running is True:
 			try:
 				yield self._data_out.get(timeout=False)
 			except Empty:
 				yield False
 
 	async def _get_next_incoming_packet(self) -> str or bool:
-		while self._run is True:
+		while self._is_running is True:
 			try:
 				yield self._data_in.get(timeout=False)
 			except Empty:
 				yield False
 
-	async def _run_serial_communication(self):
+	async def _run_serial_communication(self) -> bool:
 		start = False
 		print("trying to start") # TODO: logger
 		while start is False:
@@ -121,10 +124,10 @@ class Parser:
 				print(e)
 			if received_message != self._pass_message:
 				self._data_in.put(received_message)
-			if self._run is False:
+			if self._is_running is False:
 				return True
 
-	def connect_to_arduino(self):
+	def connect_to_arduino(self) -> bool:
 		try:
 			self._serial_port = serial.Serial(port=self._port, baudrate=self._baud)
 			return True
@@ -138,21 +141,25 @@ class Parser:
 			self.send_dataset("hi", 1)
 			await asyncio.sleep(1)
 
+	def _run(self) -> bool:
+		self._is_running = True
+		loop = asyncio.new_event_loop()
+		asyncio.set_event_loop(loop)
+		loop.create_task(self._process_incoming_data())
+		loop.create_task(self._run_serial_communication())
+		self._loop = loop
+		loop.run_forever()
+		return True
+
 	def run(self) -> bool:
 		if self._serial_port is None:
 			return False
-		self._run = True
-		loop = asyncio.get_event_loop()
-		loop.create_task(self._process_incoming_data())
-		loop.create_task(self._run_serial_communication())
-		loop.run_forever()
-		self._loop = loop
+		self._thread = Thread(target=self._run, args=())
+		self._thread.start()
 
 	def stop(self) -> bool:
-		self._run = False
-		self._loop.stop()
-		self._loop.close()
-		self._loop = None
+		self._is_running = False
+		sleep(1)
 		return True
 
 
