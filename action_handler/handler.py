@@ -39,7 +39,10 @@ class Handler:
 		for arg in parsed_args:
 			parsed_args_dict.append(self._parse_arg_type(arg))
 		return parsed_args_dict
-	def handle(self, packet):
+	def handle_packet(self, packet):
 		command = self._parse_command(packet)
 		args = self._parse_args(packet)
+		return command(*args)
+	def handle_internal(self, command, *args):
+		command = self._parse_command(command)
 		return command(*args)
