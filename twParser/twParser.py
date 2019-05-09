@@ -13,8 +13,8 @@ class PrioritizedItem:
 
 
 class Parser:
-	def __init__(self, controller):
-		self._controller = controller
+	def __init__(self, handler):
+		self._controller = handler
 		self._data_in = Queue()
 		self._data_out = PriorityQueue()
 		self._transceiverDevice = ArduinoSerial()
@@ -91,9 +91,10 @@ class Parser:
 			received_start_message = self._transceiverDevice.receive()
 			if received_start_message == self._start_message:
 				start = True
-				print("starting") # TODO: logger
+				print("starting")  # TODO: logger
 		async for next_packet in self._get_next_outgoing_packet():
 			if next_packet is not False:
+				print(f"sending: {next_packet.item}")
 				self._transceiverDevice.write(next_packet.item)
 			else:
 				await asyncio.sleep(2)
@@ -137,6 +138,7 @@ class Parser:
 			return False
 		self._thread = Thread(target=self._run, args=())
 		self._thread.start()
+		return True
 
 	def stop(self) -> bool:
 		self._is_running = False
