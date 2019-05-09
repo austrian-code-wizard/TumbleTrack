@@ -10,6 +10,9 @@ class Handler:
 	def register_object(self, obj, name):
 		self._objects[name] = obj
 		return True
+	def register_object_dict(self, object_dict):
+		self._objects = {**self._objects, **object_dict}
+		return True
 	def _parse_arg_type(self, arg):
 		if arg[0] == self._obj_char:
 			if arg[1:] in self._objects.keys():
