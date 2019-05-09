@@ -25,10 +25,6 @@ class Atmos:
 		self._data_out.put(packet)
 		return True
 
-	def add_device(self, device, device_code):
-		self._devices[device_code] = device
-		return True
-
 	def check_devices(self):
 		all_clear = True
 		for device in self._devices.keys():
@@ -58,7 +54,7 @@ class Atmos:
 		asyncio.set_event_loop(loop)
 		loop.create_task(self._process_outgoing_data())
 		for device in self._devices.keys():
-			loop = self._devices[device].start(loop)
+			self._devices[device].start(loop)
 		self._loop = loop
 		loop.run_forever()
 		return True

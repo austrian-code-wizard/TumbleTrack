@@ -69,17 +69,18 @@ class MCP9808:
 		while self._run:
 			end_time = time() + self._timeout
 			result = await loop.run_in_executor(None, self._read_temp)
-			self._controller.receive_data(result, self._name)
+			self._controller.receive_data(str(result), self._name)
 			delta_time = end_time - time()
 			if delta_time > 0:
 				await asyncio.sleep(delta_time)
 		self._active = False
 		return True
 
-	async def start(self, loop):
+	def start(self, loop):
 		self._run = True
+		asyncio.set_event_loop(loop)
 		loop.create_task(self._measure_continuously())
-		return loop
+		return None
 
 	def stop(self):
 		self._run = False
