@@ -31,6 +31,7 @@ class MCP9808:
 
 	def __init__(self, controller, timeout=1, address=MCP9808_I2CADDR_DEFAULT, bus=MCP9808_I2C_BUS_DEFAULT, name="T1"):
 		self._controller = controller
+		controller._devices[name] = self
 		self._timeout = timeout
 		self._run = False
 		self._active = False
