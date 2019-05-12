@@ -1,11 +1,13 @@
 from queue import Queue, Empty
 from threading import Thread
+from twABCs.controller import Controller
 from time import sleep
 import asyncio
 
 
-class Atmos:
+class Atmos(Controller):
 	def __init__(self, handler, parser):
+		super().__init__()
 		self._handler = handler
 		self._parser = parser
 		self._devices = {}
@@ -19,6 +21,10 @@ class Atmos:
 	@staticmethod
 	def _wrap_data(data, device_code):
 		return device_code + data + device_code
+
+	def register_sensor(self, sensor, name):
+		self._devices[name] = sensor
+		return True
 
 	def receive_data(self, data, device_code):
 		packet = Atmos._wrap_data(data, device_code)

@@ -24,6 +24,7 @@ class ArduinoSerial:
 		if self._serial_port is None:
 			return False # TODO: handle properly
 		try:
+			print(f"writing: {message}")
 			self._serial_port.write(message)
 			return True
 		except:

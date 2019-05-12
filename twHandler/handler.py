@@ -1,4 +1,7 @@
 class Handler:
+	"""
+	confirm_test_message+3+hello+4.5+!thermometer
+	"""
 	def __init__(self):
 		self._commands = {}
 		self._objects = {}

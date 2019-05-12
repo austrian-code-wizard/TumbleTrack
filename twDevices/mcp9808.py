@@ -1,10 +1,11 @@
-from twExceptions.twExceptions import TWException
+from twExceptions.twExceptions import SensorConnectionException
 from time import time
 import asyncio
 import Adafruit_GPIO.I2C as I2C
+from twABCs.sensor import Sensor
 
 
-class MCP9808:
+class MCP9808(Sensor):
 	# Default I2C address for device.
 	MCP9808_I2CADDR_DEFAULT = 0x18
 	MCP9808_I2C_BUS_DEFAULT = 1
@@ -30,8 +31,9 @@ class MCP9808:
 	MCP9808_REG_CONFIG_ALERTMODE = 0x0001
 
 	def __init__(self, controller, timeout=1, address=MCP9808_I2CADDR_DEFAULT, bus=MCP9808_I2C_BUS_DEFAULT, name="T1"):
+		super().__init__()
 		self._controller = controller
-		controller._devices[name] = self
+		controller.register_sensor(self, name)
 		self._timeout = timeout
 		self._run = False
 		self._active = False
@@ -40,7 +42,7 @@ class MCP9808:
 
 	def check(self):
 		"""Start taking temperature measurements. Returns True if the device is
-		intialized, False otherwise.
+		initialized, False otherwise.
 		"""
 
 		# Check manufacturer and device ID match expected values.
@@ -51,7 +53,7 @@ class MCP9808:
 		else:
 			return False
 
-	def _read_temp(self):
+	def _measure_value(self):
 		"""Read sensor and return its value in degrees celsius."""
 		# Read temperature register value.
 		t = self._device.readU16BE(MCP9808.MCP9808_REG_AMBIENT_TEMP)
@@ -61,15 +63,15 @@ class MCP9808:
 			temp -= 256.0
 		return temp
 
-	def get_temperature_now(self):
-		return self._read_temp()
+	def get_single_measurement(self):
+		return self._measure_value()
 
 	async def _measure_continuously(self):
 		loop = asyncio.get_running_loop()
 		self._active = True
 		while self._run:
 			end_time = time() + self._timeout
-			result = await loop.run_in_executor(None, self._read_temp)
+			result = await loop.run_in_executor(None, self._measure_value())
 			self._controller.receive_data(str(result), self._name)
 			delta_time = end_time - time()
 			if delta_time > 0:
@@ -86,11 +88,3 @@ class MCP9808:
 	def stop(self):
 		self._run = False
 		return True
-
-
-
-
-
-
-
-

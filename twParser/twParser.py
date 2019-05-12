@@ -88,6 +88,8 @@ class Parser:
 		# TODO: run calls to transceiverDevice in async executor to make them awaitable
 		start = False
 		print("trying to start")  # TODO: logger
+		if self._transceiverDevice is None:
+			raise ValueError("No transceiver device initialized")
 		while start is False:
 			self._transceiverDevice.write(self._prepare_for_sending(self._start_message.encode()))
 			received_start_message = self._transceiverDevice.receive()
