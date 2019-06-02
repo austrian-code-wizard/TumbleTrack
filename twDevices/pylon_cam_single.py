@@ -10,7 +10,7 @@ import numpy as np
 
 class PylonCamSingle(Sensor):
 
-    def __init__(self, controller: Controller, acquisition_timeout=1000, retrieval_timeout=5000, timeout=1):
+    def __init__(self, controller: Controller, binning_factor=4, acquisition_timeout=1000, retrieval_timeout=5000, timeout=1):
         super().__init__()
         self._controller = controller
         self._camera_id = f'camera_{uuid.uuid4()}'
@@ -26,8 +26,8 @@ class PylonCamSingle(Sensor):
         self._camera.Open()
 
         self._camera.PixelFormat = "RGB8"
-        self._camera.BinningHorizontal = 4
-        self._camera.BinningVertical = 4
+        self._camera.BinningHorizontal = binning_factor
+        self._camera.BinningVertical = binning_factor
 
     def check(self) -> bool:
         return True
