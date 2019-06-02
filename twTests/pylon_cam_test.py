@@ -7,9 +7,13 @@ import time
 
 camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
 camera.Open()
+
+
+#camera.TestPattern = 'ColorDiagonalSawtooth8'
 camera.PixelFormat = "RGB8"
 camera.BinningHorizontal = 4
 camera.BinningVertical = 4
+
 
 while True:
     result = camera.GrabOne(1000)
