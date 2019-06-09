@@ -167,7 +167,7 @@ class MPL3115A2(Sensor):
 		self._reset()
 		while self._run:
 			end_time = time() + self._timeout
-			result = await loop.run_in_executor(None, self._measure_value())
+			result = await loop.run_in_executor(None, self._measure_value)
 			self._controller.receive_data(str(result), self._name)
 			delta_time = end_time - time()
 			if delta_time > 0:
