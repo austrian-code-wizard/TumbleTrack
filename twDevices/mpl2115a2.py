@@ -99,26 +99,23 @@ class MPL3115A2(Sensor):
 	def _measure_value(self):
 		"""Read the barometric pressure detected by the sensor in Pascals."""
 		# First poll for a measurement to be finished.
-		try:
-			self._poll_reg1(MPL3115A2._MPL3115A2_CTRL_REG1_OST)
-			# Set control bits for pressure reading.
-			self._ctrl_reg1 &= ~0b10000000  # Turn off bit 7, ALT.
-			self._device.write8(MPL3115A2._MPL3115A2_CTRL_REG1, self._ctrl_reg1)
-			self._ctrl_reg1 |= 0b00000010   # Set OST to 1 to start measurement.
-			self._device.write8(MPL3115A2._MPL3115A2_CTRL_REG1, self._ctrl_reg1)
-			# Poll status for PDR to be set.
-			while self._device.readU8(MPL3115A2._MPL3115A2_REGISTER_STATUS) & MPL3115A2._MPL3115A2_REGISTER_STATUS_PDR == 0:
-				sleep(0.01)
-			pressure_msb = self._device.readU8(MPL3115A2._MPL3115A2_REGISTER_PRESSURE_MSB)
-			pressure_csb = self._device.readU8(MPL3115A2._MPL3115A2_REGISTER_PRESSURE_CSB)
-			pressure_lsb = self._device.readU8(MPL3115A2._MPL3115A2_REGISTER_PRESSURE_LSB)
-			# Reconstruct 20-bit pressure value.
-			pressure = ((pressure_msb << 16) | (pressure_csb << 8) | pressure_lsb) & 0xFFFFFF
-			pressure >>= 4
-			# Scale down to pascals.
-			return pressure / 4.0
-		except Exception as e:
-			return str(e)
+		self._poll_reg1(MPL3115A2._MPL3115A2_CTRL_REG1_OST)
+		# Set control bits for pressure reading.
+		self._ctrl_reg1 &= ~0b10000000  # Turn off bit 7, ALT.
+		self._device.write8(MPL3115A2._MPL3115A2_CTRL_REG1, self._ctrl_reg1)
+		self._ctrl_reg1 |= 0b00000010   # Set OST to 1 to start measurement.
+		self._device.write8(MPL3115A2._MPL3115A2_CTRL_REG1, self._ctrl_reg1)
+		# Poll status for PDR to be set.
+		while self._device.readU8(MPL3115A2._MPL3115A2_REGISTER_STATUS) & MPL3115A2._MPL3115A2_REGISTER_STATUS_PDR == 0:
+			sleep(0.01)
+		pressure_msb = self._device.readU8(MPL3115A2._MPL3115A2_REGISTER_PRESSURE_MSB)
+		pressure_csb = self._device.readU8(MPL3115A2._MPL3115A2_REGISTER_PRESSURE_CSB)
+		pressure_lsb = self._device.readU8(MPL3115A2._MPL3115A2_REGISTER_PRESSURE_LSB)
+		# Reconstruct 20-bit pressure value.
+		pressure = ((pressure_msb << 16) | (pressure_csb << 8) | pressure_lsb) & 0xFFFFFF
+		pressure >>= 4
+		# Scale down to pascals.
+		return pressure / 4.0
 
 	def _measure_altitude(self):
 		"""Read the altitude as calculated based on the sensor pressure and
