@@ -38,24 +38,24 @@ def run():
 
 	device = I2C.get_i2c_device(0x60, busnum=1)
 
-	device.write16(MPL3115_CTRL_REG1, 0xB8)
+	device.write8(MPL3115_CTRL_REG1, 0xB8)
 	# Enable Data Flags in PT_DATA_CFG
-	device.write16(MPL3115_PT_DATA_CFG, 0x07)
+	device.write8(MPL3115_PT_DATA_CFG, 0x07)
 	# Set Active (polling)
-	device.write16(MPL3115_CTRL_REG1, 0xB9)
+	device.write8(MPL3115_CTRL_REG1, 0xB9)
 
 	while not stop:
 		# Read STATUS Register
-		STA = device.read16(MPL3115_STATUS)
+		STA = device.readU8(MPL3115_STATUS)
 		# check if pressure or temperature are ready (both) [STATUS, 0x00 register]
 		if STA == "":
 			print("error with the sensor")
 			break
 		if (int(STA, 16) & 0x04) == 4:
 			# OUT_P
-			OUT_P_MSB = device.read16(0x01)
-			OUT_P_CSB = device.read16(0x02)
-			OUT_P_LSB = device.read16(0x04)
+			OUT_P_MSB = device.read8(0x01)
+			OUT_P_CSB = device.read8(0x02)
+			OUT_P_LSB = device.read8(0x04)
 			## OUT_T
 			# OUT_T_MSB = readI2C(0x04)
 			# OUT_T_LSB = readI2C(0x05)
