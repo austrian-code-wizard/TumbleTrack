@@ -165,3 +165,9 @@ class MPL3115A2:
 			temp |= 0xF000
 		# Scale down to degrees Celsius.
 		return temp / 16.0
+
+if __name__ == "__main__":
+	dev = MPL3115A2()
+	print(dev.temperature())
+	print(dev.pressure())
+	print(dev.altitude())
