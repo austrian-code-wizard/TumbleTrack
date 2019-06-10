@@ -26,6 +26,7 @@ class HTU21DF(Sensor):
 		self._active = False
 		self._name = name
 		self._handler = None
+		self._external_thermometer = "mcp"
 		self._device = I2C.get_i2c_device(address, busnum=bus)
 
 	def check(self):
@@ -46,9 +47,8 @@ class HTU21DF(Sensor):
 		humi_reading = (h1 * 256) + h2
 		humi_reading = float(humi_reading)
 		uncomp_humidity = ((humi_reading / 65536) * 125) - 6
-		if self._handler is not None and self._handler.check_registered_objects("mcp"):
-			temperature = self._handler.handle_packet("get_single_measurement+!mcp")
-			print(f"Got mcp temperature {temperature}")
+		if self._handler is not None and self._handler.check_registered_objects(self._external_thermometer):
+			temperature = self._handler.handle_packet(f"get_single_measurement+!{self._external_thermometer}")
 		else:
 			temperature = self._measure_temperature()
 		humidity = ((25 - temperature) * -0.15) + uncomp_humidity
