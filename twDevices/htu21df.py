@@ -45,7 +45,7 @@ class HTU21DF(Sensor):
 		humi_reading = (h1 * 256) + h2
 		humi_reading = float(humi_reading)
 		uncomp_humidity = ((humi_reading / 65536) * 125) - 6
-		temperature = self._measure_temperature(self._device)
+		temperature = self._measure_temperature()
 		humidity = ((25 - temperature) * -0.15) + uncomp_humidity
 		return humidity
 
