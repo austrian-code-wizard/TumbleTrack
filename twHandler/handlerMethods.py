@@ -18,3 +18,11 @@ def set_private_value(object, attribute_name, value):
 def confirm_test_message():
 	print("I received a test command!")
 	return True
+
+@handler.register_command
+def get_single_measurement(obj):
+	if hasattr(obj, "get_single_measurement"):
+		return obj.get_single_measurement()
+	else:
+		return None # TODO: Raise error
+

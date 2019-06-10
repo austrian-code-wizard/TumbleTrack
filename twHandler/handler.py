@@ -14,6 +14,7 @@ class Handler:
 
 	def register_object(self, obj, name):
 		self._objects[name] = obj
+		obj._handler = self
 		return True
 
 	def register_object_dict(self, object_dict):
@@ -57,3 +58,9 @@ class Handler:
 	def handle_internal(self, command, *args):
 		command = self._parse_command(command)
 		return command(*args)
+
+	def check_registered_objects(self, name):
+		for object in self._objects.keys():
+			if object == name:
+				return True
+		return False
