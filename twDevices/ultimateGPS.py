@@ -19,13 +19,13 @@ class UltimateGPS(Sensor):
 		self._device.stream(gps.WATCH_ENABLE | gps.WATCH_NEWSTYLE)
 		return
 
-	def check(self):
+	def check(self) -> bool:
 		"""Start taking temperature measurements. Returns True if the device is
 		initialized, False otherwise.
 		"""
 		return True
 
-	def _measure_value(self):
+	def _measure_value(self) -> list:
 		"""Read sensor and return its value in degrees celsius."""
 		# Read temperature register value.
 		data = self._device.next()
@@ -49,10 +49,10 @@ class UltimateGPS(Sensor):
 				results.append(None)
 		return results
 
-	def get_single_measurement(self):
+	def get_single_measurement(self) -> list:
 		return self._measure_value()
 
-	async def _measure_continuously(self):
+	async def _measure_continuously(self) -> bool:
 		loop = asyncio.get_running_loop()
 		self._active = True
 		while self._run:
@@ -65,12 +65,12 @@ class UltimateGPS(Sensor):
 		self._active = False
 		return True
 
-	def start(self, loop):
+	def start(self, loop: asyncio.AbstractEventLoop) -> bool:
 		self._run = True
 		asyncio.set_event_loop(loop)
 		loop.create_task(self._measure_continuously())
-		return None
+		return True
 
-	def stop(self):
+	def stop(self) -> bool:
 		self._run = False
 		return True

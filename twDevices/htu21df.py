@@ -29,7 +29,7 @@ class HTU21DF(Sensor):
 		self._external_thermometer = "T1"
 		self._device = I2C.get_i2c_device(address, busnum=bus)
 
-	def check(self):
+	def check(self) -> bool:
 		"""Check if sensor is connected properly
 		"""
 		self._device.writeRaw8(HTU21DF.HTU21DF_RESET)
@@ -37,8 +37,9 @@ class HTU21DF(Sensor):
 		self._device.writeRaw8(HTU21DF.HTU21DF_READ_REG)
 		if not self._device.readRaw8() == HTU21DF.HTU21DF_RESET_REG_VALUE:
 			raise IOError("HTU21D-F device reset failed") # TODO: user an tumbleweed specific error
+		return True
 
-	def _measure_value(self):
+	def _measure_value(self) -> float:
 		"""Read sensor and return its value in humidity in percent."""
 		self._device.writeRaw8(0xE5)
 		res = self._device._bus.read_bytes(self._device._address, 3)
@@ -54,7 +55,7 @@ class HTU21DF(Sensor):
 		humidity = ((25 - temperature) * -0.15) + uncomp_humidity
 		return humidity
 
-	def _measure_temperature(self):
+	def _measure_temperature(self) -> float:
 		self._device.writeRaw8(0xE3)
 		res = self._device._bus.read_bytes(self._device._address, 3)
 		t1 = res[0]
@@ -64,10 +65,10 @@ class HTU21DF(Sensor):
 		temperature = ((temp_reading / 65536) * 175.72) - 46.85
 		return temperature
 
-	def get_single_measurement(self):
+	def get_single_measurement(self) -> float:
 		return self._measure_value()
 
-	async def _measure_continuously(self):
+	async def _measure_continuously(self) -> bool:
 		loop = asyncio.get_running_loop()
 		self._active = True
 		while self._run:
@@ -80,12 +81,12 @@ class HTU21DF(Sensor):
 		self._active = False
 		return True
 
-	def start(self, loop):
+	def start(self, loop) -> bool:
 		self._run = True
 		asyncio.set_event_loop(loop)
 		loop.create_task(self._measure_continuously())
-		return None
+		return True
 
-	def stop(self):
+	def stop(self) -> bool:
 		self._run = False
 		return True
