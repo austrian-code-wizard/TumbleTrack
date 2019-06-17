@@ -15,7 +15,7 @@ class ADS1115(Sensor):
 	ADS1x15_POINTER_HIGH_THRESHOLD = 0x03
 	ADS1x15_CONFIG_OS_SINGLE = 0x8000
 	ADS1x15_CONFIG_MUX_OFFSET = 12
-	# Maping of gain values to config register values.
+	# Mapping of gain values to config register values.
 	ADS1x15_CONFIG_GAIN = {
 		2 / 3: 0x0000,
 		1: 0x0200,
@@ -67,6 +67,16 @@ class ADS1115(Sensor):
 		self._data_rate = 128
 		self._device = I2C.get_i2c_device(address, busnum=bus)
 
+	def set_gain(self, gain):
+		if gain not in ADS1115.ADS1x15_CONFIG_GAIN:
+			raise ValueError  # TODO: raise tw specific error
+		self._gain = gain
+
+	def set_data_rate(self, data_rate):
+		if data_rate not in ADS1115.ADS1115_CONFIG_DR:
+			raise ValueError  # TODO: raise tw specific error
+		self._data_rate = data_rate
+
 	def check(self):
 		return True
 
@@ -101,16 +111,19 @@ class ADS1115(Sensor):
 		result = self._device.readList(ADS1115.ADS1x15_POINTER_CONVERSION, 2)
 		return self._conversion_value(result[1], result[0])
 
-	def _data_rate_default(self):
+	@staticmethod
+	def _data_rate_default():
 		# Default from datasheet page 16, config register DR bit default.
 		return 128
 
-	def _data_rate_config(self, data_rate):
+	@staticmethod
+	def _data_rate_config(data_rate):
 		if data_rate not in ADS1115.ADS1115_CONFIG_DR:
 			raise ValueError('Data rate must be one of: 8, 16, 32, 64, 128, 250, 475, 860')
 		return ADS1115.ADS1115_CONFIG_DR[data_rate]
 
-	def _conversion_value(self, low, high):
+	@staticmethod
+	def _conversion_value(low, high):
 		# Convert to 16-bit signed value.
 		value = ((high & 0xFF) << 8) | (low & 0xFF)
 		# Check for sign bit and turn into a negative value if set.
