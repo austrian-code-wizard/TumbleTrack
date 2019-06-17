@@ -26,7 +26,7 @@ class HTU21DF(Sensor):
 		self._active = False
 		self._name = name
 		self._handler = None
-		self._external_thermometer = "mcp"
+		self._external_thermometer = "T1"
 		self._device = I2C.get_i2c_device(address, busnum=bus)
 
 	def check(self):

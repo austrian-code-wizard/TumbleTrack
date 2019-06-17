@@ -24,6 +24,7 @@ class Atmos(Controller):
 
 	def register_sensor(self, sensor, name):
 		self._devices[name] = sensor
+		self._handler.register_object(sensor, name)
 		return True
 
 	def receive_data(self, data, device_code):
