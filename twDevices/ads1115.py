@@ -73,6 +73,7 @@ class ADS1115(Sensor):
 	def _measure_value(self):
 		results = []
 		for mux in range(0, 4):
+			mux = mux + 0x04
 			config = ADS1115.ADS1x15_CONFIG_OS_SINGLE  # Go out of power-down mode for conversion.
 			# Specify mux value.
 			config |= (mux & 0x07) << ADS1115.ADS1x15_CONFIG_MUX_OFFSET
@@ -100,6 +101,7 @@ class ADS1115(Sensor):
 				value -= 1 << 16
 			value = value * ADS1115.PGA_RANGE[self._gain] / 2**15
 			results.append(value)
+			sleep(0.001)
 		return results
 
 	def get_single_measurement(self):
