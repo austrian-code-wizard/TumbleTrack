@@ -139,6 +139,12 @@ class ADS1115(Sensor):
 			results.append(value)
 		return results
 
+	def _measure_channel_value(self, channel):
+		if channel not in [0, 1, 2, 3]:
+			raise ValueError  # TODO: raise tw specific error
+		raw_value = self._read(channel + 0x04, self._gain, self._data_rate, ADS1115.ADS1x15_CONFIG_MODE_SINGLE)
+		return raw_value * ADS1115.PGA_RANGE[self._gain] / 2**15
+
 	def get_single_measurement(self):
 		return self._measure_value()
 
