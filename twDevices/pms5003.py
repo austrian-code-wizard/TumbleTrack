@@ -15,7 +15,7 @@ class PMS5003(Sensor):
 	_SLEEP = b'\x42\x4d\xe4\x00\x00\x01\x73'
 	_WAKEUP = b'\x42\x4d\xe4\x00\x01\x01\x74'
 
-	def __init__(self, controller, timeout=2, address="/dev/ttyUSB0", baud_rate=9600, name="D1"):
+	def __init__(self, controller, timeout=2, address="/dev/tty.SLAB_USBtoUART", baud_rate=9600, name="D1"):
 		super().__init__()
 		self._controller = controller
 		controller.register_sensor(self, name)
@@ -55,7 +55,7 @@ class PMS5003(Sensor):
 		while self._run:
 			end_time = time() + self._timeout
 			result = await loop.run_in_executor(None, self._measure_value)
-			self._controller.receive_data(str(result), self._name)
+			self._controller.receive_data(str(result).replace(" ", "").replace("[", "").replace("]", ""), self._name)
 			delta_time = end_time - time()
 			if delta_time > 0:
 				await asyncio.sleep(delta_time)

@@ -34,7 +34,7 @@ class Parser:
 		self._thread = None
 
 	@staticmethod
-	def chunkstring(string: str, length: int) -> str:
+	def chunkstring(string: str, length: int) -> iter:
 		return (string[0 + i:length + i] for i in range(0, len(string), length))
 
 	@staticmethod
@@ -106,6 +106,7 @@ class Parser:
 				received_message = self._transceiverDevice.receive()
 			except Exception as e:
 				print(e)
+				received_message = None
 				# TODO: handle properly
 			if received_message != self._pass_message:
 				self._data_in.put(received_message)
