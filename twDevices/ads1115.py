@@ -79,7 +79,7 @@ class ADS1115(Sensor):
 			config |= (mux & 0x07) << ADS1115.ADS1x15_CONFIG_MUX_OFFSET
 			# Validate the passed in gain and then set it in the config.
 			if self._gain not in ADS1115.ADS1x15_CONFIG_GAIN:
-				raise ValueError('Gain must be one of: 2/3, 1, 2, 4, 8, 16') # TODO: Implement twError
+				raise ValueError('Gain must be one of: 2/3, 1, 2, 4, 8, 16')  # TODO: Implement twError
 			config |= ADS1115.ADS1x15_CONFIG_GAIN[self._gain]
 			# Set the mode (continuous or single shot).
 			config |= ADS1115.ADS1x15_CONFIG_MODE_SINGLE
@@ -99,7 +99,7 @@ class ADS1115(Sensor):
 			# Check for sign bit and turn into a negative value if set.
 			if value & 0x8000 != 0:
 				value -= 1 << 16
-			value = value * ADS1115.PGA_RANGE[self._gain] / 2**15
+			#value = value * ADS1115.PGA_RANGE[self._gain] / 2**15
 			results.append(value)
 			sleep(0.001)
 		return results
