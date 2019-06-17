@@ -70,38 +70,60 @@ class ADS1115(Sensor):
 	def check(self):
 		return True
 
+	def _read(self, mux, gain, data_rate, mode):
+		"""Perform an ADC read with the provided mux, gain, data_rate, and mode
+		values.  Returns the signed integer result of the read.
+		"""
+		config = ADS1115.ADS1x15_CONFIG_OS_SINGLE  # Go out of power-down mode for conversion.
+		# Specify mux value.
+		config |= (mux & 0x07) << ADS1115.ADS1x15_CONFIG_MUX_OFFSET
+		# Validate the passed in gain and then set it in the config.
+		if gain not in ADS1115.ADS1x15_CONFIG_GAIN:
+			raise ValueError('Gain must be one of: 2/3, 1, 2, 4, 8, 16')
+		config |= ADS1115.ADS1x15_CONFIG_GAIN[gain]
+		# Set the mode (continuous or single shot).
+		config |= mode
+		# Get the default data rate if none is specified (default differs between
+		# ADS1015 and ADS1115).
+		if data_rate is None:
+			data_rate = self._data_rate_default()
+		# Set the data rate (this is controlled by the subclass as it differs
+		# between ADS1015 and ADS1115).
+		config |= self._data_rate_config(data_rate)
+		config |= ADS1115.ADS1x15_CONFIG_COMP_QUE_DISABLE  # Disble comparator mode.
+		# Send the config value to start the ADC conversion.
+		# Explicitly break the 16-bit value down to a big endian pair of bytes.
+		self._device.writeList(ADS1115.ADS1x15_POINTER_CONFIG, [(config >> 8) & 0xFF, config & 0xFF])
+		# Wait for the ADC sample to finish based on the sample rate plus a
+		# small offset to be sure (0.1 millisecond).
+		sleep(1.0 / data_rate + 0.0001)
+		# Retrieve the result.
+		result = self._device.readList(ADS1115.ADS1x15_POINTER_CONVERSION, 2)
+		return self._conversion_value(result[1], result[0])
+
+	def _data_rate_default(self):
+		# Default from datasheet page 16, config register DR bit default.
+		return 128
+
+	def _data_rate_config(self, data_rate):
+		if data_rate not in ADS1115.ADS1115_CONFIG_DR:
+			raise ValueError('Data rate must be one of: 8, 16, 32, 64, 128, 250, 475, 860')
+		return ADS1115.ADS1115_CONFIG_DR[data_rate]
+
+	def _conversion_value(self, low, high):
+		# Convert to 16-bit signed value.
+		value = ((high & 0xFF) << 8) | (low & 0xFF)
+		# Check for sign bit and turn into a negative value if set.
+		if value & 0x8000 != 0:
+			value -= 1 << 16
+		return value
+
 	def _measure_value(self):
 		results = []
-		for mux in range(0, 4):
-			mux = mux + 0x04
-			config = ADS1115.ADS1x15_CONFIG_OS_SINGLE  # Go out of power-down mode for conversion.
-			# Specify mux value.
-			config |= (mux & 0x07) << ADS1115.ADS1x15_CONFIG_MUX_OFFSET
-			# Validate the passed in gain and then set it in the config.
-			if self._gain not in ADS1115.ADS1x15_CONFIG_GAIN:
-				raise ValueError('Gain must be one of: 2/3, 1, 2, 4, 8, 16')  # TODO: Implement twError
-			config |= ADS1115.ADS1x15_CONFIG_GAIN[self._gain]
-			# Set the mode (continuous or single shot).
-			config |= ADS1115.ADS1x15_CONFIG_MODE_SINGLE
-			# Set the data rate (this is controlled by the subclass as it differs
-			# between ADS1015 and ADS1115).
-			config |= ADS1115.ADS1115_CONFIG_DR[self._data_rate]
-			config |= ADS1115.ADS1x15_CONFIG_COMP_QUE_DISABLE  # Disable comparator mode.
-			# Send the config value to start the ADC conversion.
-			# Explicitly break the 16-bit value down to a big endian pair of bytes.
-			self._device.writeList(ADS1115.ADS1x15_POINTER_CONFIG, [(config >> 8) & 0xFF, config & 0xFF])
-			# Wait for the ADC sample to finish based on the sample rate plus a
-			# small offset to be sure (0.1 millisecond).
-			sleep(1.0/self._data_rate+0.0001)
-			# Retrieve the result.
-			result = self._device.readList(ADS1115.ADS1x15_POINTER_CONVERSION, 2)
-			value = ((result[1] & 0xFF) << 8) | (result[0] & 0xFF)
-			# Check for sign bit and turn into a negative value if set.
-			if value & 0x8000 != 0:
-				value -= 1 << 16
-			#value = value * ADS1115.PGA_RANGE[self._gain] / 2**15
+		for channel in range(0, 4):
+			value = self._read(channel + 0x04, self._gain, self._data_rate, ADS1115.ADS1x15_CONFIG_MODE_SINGLE)
+			value = value * ADS1115.PGA_RANGE[self._gain] / 2**15
 			results.append(value)
-			sleep(0.001)
 		return results
 
 	def get_single_measurement(self):
