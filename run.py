@@ -8,6 +8,7 @@ from twDevices.htu21df import HTU21DF
 from twDevices.pms5003 import PMS5003
 from twDevices.ultimateGPS import UltimateGPS
 from twDevices.ads1115 import ADS1115
+from twDevices.amg8833 import AMG8833
 
 if __name__ == "__main__":
 	parser = Parser(handler) # make sure that the right transceiver device is selected in Parser.__init__()
@@ -17,10 +18,11 @@ if __name__ == "__main__":
 	#mcp = MCP9808(atmos)
 	#mpl = MPL3115A2(atmos)
 	#htu = HTU21DF(atmos)
-	testdev = TestDevice(atmos)
+	#testdev = TestDevice(atmos)
 	# pms = PMS5003(atmos)
 	#gps = UltimateGPS(atmos)
 	#ads = ADS1115(atmos)
+	amg = AMG8833(atmos)
 	parser.connect(port="/dev/tty.usbmodem141401")
 	parser.run()
 	atmos.run()
