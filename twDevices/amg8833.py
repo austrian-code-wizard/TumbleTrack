@@ -6,7 +6,7 @@ from twABCs.sensor import Sensor
 
 
 class AMG8833(Sensor):
-	AMG88xx_I2CADDR = 0x68 #sonst 0x69
+	AMG88xx_I2CADDR = 0x68  #sonst 0x69
 	AMG88xx_DEFAULT_BUS = 1
 	AMG88xx_PCTL = 0x00
 	AMG88xx_RST = 0x01
@@ -26,7 +26,7 @@ class AMG8833(Sensor):
 	AMG88xx_TTHL = 0x0E
 	AMG88xx_TTHH = 0x0F
 	AMG88xx_INT_OFFSET = 0x010
-	AMG88xx_PIXEL_OFFSET = 0x80 # ends at 0xFF
+	AMG88xx_PIXEL_OFFSET = 0x80 # ends at 0xFF  every second register is the high/low of one Pixel
 
 	# Operating Modes
 	AMG88xx_NORMAL_MODE = 0x00
@@ -54,7 +54,7 @@ class AMG8833(Sensor):
 	AMG88xx_PIXEL_TEMP_CONVERSION = .25
 	AMG88xx_THERMISTOR_CONVERSION = .0625
 
-	def __init__(self, controller, timeout=1, address=AMG88xx_I2CADDR, bus= 1, name="IR1"):
+	def __init__(self, controller, timeout=1, address=AMG88xx_I2CADDR, bus=1, name="IR1"):
 		super().__init__()
 		self._controller = controller
 		controller.register_sensor(self, name)
