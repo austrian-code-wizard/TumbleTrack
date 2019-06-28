@@ -92,7 +92,7 @@ class TSL2561(Sensor):
             print("IR Result", IR)
             print("Ambient Result", ambient)
 
-        if ratio >= 0 & ratio <= 0.52:
+        if (ratio >= 0) & (ratio <= 0.52):
             lux = (0.0315 * ambient) - (0.0593 * ambient * (ratio**1.4))
         elif ratio <= 0.65:
             lux = (0.0229 * ambient) - (0.0291 * IR)
