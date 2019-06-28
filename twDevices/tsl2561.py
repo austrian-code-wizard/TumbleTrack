@@ -36,12 +36,22 @@ class TSL2561(Sensor):
             self._gain = gain                     # safe gain for calculation
             # time.sleep(1)              # pause for integration (self.pause must be bigger than integration time)
 
+    def reverseByteOrder(self,data):                # TODO deletet this method
+        """Reverses the byte order of an int (16-bit) or long (32-bit) value."""
+        # Courtesy Vishal Sapre
+        byteCount = len(hex(data)[2:].replace('L', '')[::2])
+        val = 0
+        for i in range(byteCount):
+            val = (val << 8) | (data & 0xff)
+            data >>= 8
+        return val
+
     def read_word(self, reg):
         """Reads a word from the I2C device"""
         try:
             wordval = self._device.readU16(reg)
-            newval = self._device.reverseByteOrder(wordval)
-            if self.debug:
+            newval = self.reverseByteOrder(wordval)
+            if self._debug:
                 print("I2C: Device 0x%02X returned 0x%04X from reg 0x%02X" )
             return newval
         except IOError:
