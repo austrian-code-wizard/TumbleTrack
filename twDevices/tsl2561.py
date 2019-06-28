@@ -19,18 +19,18 @@ class TSL2561(Sensor):
         self._device = I2C.get_i2c_device(address, busnum=bus)
         self._gain = gain
         self._debug = 0
-        self._device.writeU8(0x80, 0x02)
-        print("Device enabled")  #TODO delete this
+        self._device.write8(0x80, 0x02)
+        print("Device enabled")  # TODO delete this
 
     def set_gain(self, gain=1):
         """ Set the gain """
         if gain != self._gain:
             if gain == 1:
-                self._device.writeU8(0x81, 0x02)     # set gain = 1X and timing = 402 mSec
+                self._device.write8(0x81, 0x02)     # set gain = 1X and timing = 402 mSec
                 if self._debug:
                     print("Setting low gain")
             else:
-                self._device.writeU8(0x81, 0x12)     # set gain = 16X and timing = 402 mSec
+                self._device.write8(0x81, 0x12)     # set gain = 16X and timing = 402 mSec
                 if self._debug:
                     print("Setting high gain")
             self._gain = gain                     # safe gain for calculation
@@ -78,7 +78,7 @@ class TSL2561(Sensor):
 
         ratio = (IR / float(ambient))  # changed to make it run under python 2
 
-        if (self._debug):
+        if self._debug:
             print("IR Result", IR)
             print("Ambient Result", ambient)
 
