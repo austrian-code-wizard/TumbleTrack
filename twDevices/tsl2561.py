@@ -6,7 +6,7 @@ from twABCs.sensor import Sensor
 
 
 class TSL2561(Sensor):
-    TSL2561_I2CADDR = 0x38  # 0x39
+    TSL2561_I2CADDR = 0x49  # 0x39
 
     def __init__(self, controller, timeout=1, address= TSL2561_I2CADDR, bus=1, name="AL1", gain = 0):
         super().__init__()
