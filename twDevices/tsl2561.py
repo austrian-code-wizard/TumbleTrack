@@ -19,8 +19,7 @@ class TSL2561(Sensor):
         self._device = I2C.get_i2c_device(address, busnum=bus)
         self._gain = gain
         self._debug = 0
-        print("Before first write")
-        self._device.write8(0x80, 0x02)
+        #self._device.write8(0x80, 0x02)
         print("Device enabled")  #TODO delete this
 
     def set_gain(self, gain=1):
