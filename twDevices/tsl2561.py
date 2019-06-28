@@ -50,7 +50,7 @@ class TSL2561(Sensor):
 
     def read_fullself(self, reg=0x8C):
         """Reads visible+IR diode from the I2C device"""
-        return self._device.read_word(reg)
+        return self.read_word(reg)
 
     def readIR(self, reg=0x8E):
         """Reads IR only diode from the I2C device"""
