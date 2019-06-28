@@ -24,7 +24,7 @@ if __name__ == "__main__":
 	# gps = UltimateGPS(atmos)
 	ads = ADS1115(atmos)
 	amg = AMG8833(atmos)
-	tsl = TSL2561(atmos)
+	#tsl = TSL2561(atmos)
 	parser.connect(port="/dev/tty.usbmodem141401")
 	parser.run()
 	atmos.run()
