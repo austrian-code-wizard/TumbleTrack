@@ -34,7 +34,7 @@ class TSL2561(Sensor):
                 if self._debug:
                     print("Setting high gain")
             self._gain = gain                     # safe gain for calculation
-            time.sleep(1)              # pause for integration (self.pause must be bigger than integration time)
+            # time.sleep(1)              # pause for integration (self.pause must be bigger than integration time)
 
     def read_word(self, reg):
         """Reads a word from the I2C device"""
