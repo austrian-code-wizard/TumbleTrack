@@ -3,6 +3,8 @@ from dataclasses import dataclass, field
 from queue import PriorityQueue, Queue, Empty
 from threading import Thread
 from time import sleep
+from math import ceil
+import struct
 from twDevices.arduinoSerial import ArduinoSerial
 from twDevices.testSerial import TestSerial
 
@@ -21,10 +23,13 @@ class Parser:
 		self._loop = None
 		self._is_running = False
 		self._batch_size = 32
+		self._packet_size = 256
 		self._start_flag = "<"
 		self._end_flag = ">"
 		self._message_id_bytes = 4
-		self._packet_id_bytes = 3
+		self._packet_id_bytes = 2
+		self._dtype_bytes = 1
+		self._sensor_id_bytes = 2
 		self._message_id_count = 0
 		self._packet_id_count = 0
 		self._start_message = "start"
@@ -34,29 +39,72 @@ class Parser:
 		self._thread = None
 
 	@staticmethod
-	def chunkstring(string: str, length: int) -> iter:
+	def chunkstring(string: bytes, length: int) -> iter:
 		return (string[0 + i:length + i] for i in range(0, len(string), length))
 
 	@staticmethod
-	def int_to_bytes(number: int, length):
-		return number.to_bytes(length=length, byteorder="big")
+	def number_of_packets(packet: bytes, length: int) -> bytes:
+		value = ceil(len(packet)/length)
+		return Parser.ushort_to_bytes(value)
+
+	@staticmethod
+	def ushort_to_bytes(number: int) -> bytes:
+		return struct.pack(">H", number)
+
+	@staticmethod
+	def uint_to_bytes(number: int) -> bytes:
+		return struct.pack(">I", number)
+
+	@staticmethod
+	def double_to_bytes(number: float) -> bytes:
+		return struct.pack(">d", number)
+
+	@staticmethod
+	def string_to_bytes(string: str) -> bytes:
+		return string.encode()
+
+	@staticmethod
+	def char_to_bytes(char: str) -> bytes:
+		return char.encode()
+
+	@staticmethod
+	def long_long_to_bytes(long: int) -> bytes:
+		return struct.pack(">q", long)
 
 	def _prepare_for_sending(self, packet: bytes) -> bytes:
-		return self._start_flag.encode() + packet + self._end_flag.encode()
+		return Parser.char_to_bytes(self._start_flag) + packet + Parser.char_to_bytes(self._end_flag)
 
 	def _next_message_id(self) -> bytes:
 		self._message_id_count += 1
-		return Parser.int_to_bytes(self._message_id_count, self._message_id_bytes)
+		return Parser.uint_to_bytes(self._message_id_count)
 
 	def _next_packet_id(self) -> bytes:
 		self._packet_id_count += 1
-		return Parser.int_to_bytes(self._packet_id_count, self._packet_id_bytes)
+		return Parser.ushort_to_bytes(self._packet_id_count)
 
-	def send_dataset(self, dataset: str, priority: int) -> bool:
+	def send_dataset(self, dataset: str, sensor_id: str, priority: int) -> bool:
+		"""packet layout: start_flag(1) + message_id(4) + packet_id(3) + packet_number(3) + sensor_id(2) + dtype(1) +
+		data + end_flag(1)"""
 		data_set_id = self._next_message_id()
-		content_count = 256 - 2 - self._message_id_bytes - self._packet_id_bytes
+		assert len(sensor_id) == 2
+		sensor_id = Parser.string_to_bytes(sensor_id)
+		content_count = self._packet_size - self._message_id_bytes - self._packet_id_bytes - self._dtype_bytes \
+						- self._sensor_id_bytes - self._packet_id_bytes
+		if isinstance(dataset, int):
+			dtype = Parser.char_to_bytes("I")
+			dataset = Parser.long_long_to_bytes(dataset)
+		elif isinstance(dataset, float):
+			dtype = Parser.char_to_bytes("d")
+			dataset = Parser.double_to_bytes(dataset)
+		elif isinstance(dataset, bytes):
+			dtype = Parser.char_to_bytes("b")
+		else:
+			dtype = Parser.char_to_bytes("s")
+			dataset = Parser.string_to_bytes(str(dataset))
+		number_of_packets = Parser.number_of_packets(dataset, content_count)
 		for packet in Parser.chunkstring(dataset, content_count):
-			ready_packet = self._prepare_for_sending(data_set_id + self._next_packet_id() + packet.encode())
+			ready_packet = self._prepare_for_sending(data_set_id + self._next_packet_id() + number_of_packets + dtype +
+													 sensor_id + packet)
 			self._data_out.put(PrioritizedItem(priority=priority, item=ready_packet))
 		self._packet_id_count = 0
 		return True

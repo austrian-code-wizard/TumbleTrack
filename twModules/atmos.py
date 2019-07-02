@@ -4,6 +4,8 @@ from twABCs.controller import Controller
 from time import sleep
 import asyncio
 
+# TODO: Implement proper stop like with the parser
+
 
 class Atmos(Controller):
 	def __init__(self, handler, parser):
