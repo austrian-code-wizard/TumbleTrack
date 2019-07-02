@@ -112,7 +112,8 @@ class Parser:
 	async def _process_incoming_data(self) -> bool:
 		async for data in self._get_next_incoming_packet():
 			if data is not False:
-				self._controller.handle_packet(data)
+				result = self._controller.handle_packet(data)
+				self.send_dataset(result, "H1", 10)
 			else:
 				await asyncio.sleep(0.1)
 			if self._is_running is False:

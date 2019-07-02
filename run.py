@@ -12,19 +12,40 @@ from twDevices.amg8833 import AMG8833
 from twDevices.tsl2561 import TSL2561
 
 if __name__ == "__main__":
-	parser = Parser(handler)  # make sure that the right transceiver device is selected in Parser.__init__()
-	handler.register_object(parser, "parser")
-	atmos = Atmos(handler, parser)
-	#handler.register_object(atmos, "atmos")
-	mcp = MCP9808(atmos)
-	mpl = MPL3115A2(atmos)
-	# htu = HTU21DF(atmos)
-	# testdev = TestDevice(atmos)
-	# pms = PMS5003(atmos)
-	# gps = UltimateGPS(atmos)
-	#ads = ADS1115(atmos)
-	amg = AMG8833(atmos)
-	#tsl = TSL2561(atmos)
-	parser.connect(port="/dev/tty.usbmodem141401")
-	parser.run()
-	atmos.run()
+	try:
+		parser = Parser(handler)  # make sure that the right transceiver device is selected in Parser.__init__()
+		handler.register_object(parser, "parser")
+		atmos = Atmos(handler, parser)
+		#handler.register_object(atmos, "atmos")
+		#mcp = MCP9808(atmos)
+		#mpl = MPL3115A2(atmos)
+		# htu = HTU21DF(atmos)
+		# testdev = TestDevice(atmos)
+		# pms = PMS5003(atmos)
+		# gps = UltimateGPS(atmos)
+		#ads = ADS1115(atmos)
+		#amg = AMG8833(atmos)
+		#tsl = TSL2561(atmos)
+		parser.connect(port="/dev/tty.usbmodem141401")
+		parser.run()
+		atmos.run()
+	except KeyboardInterrupt:
+		atmos.stop()
+		parser.stop()
+		print("Thank you for rolling with Team Tumbleweed")
+		message = """\
+			████████╗███████╗ █████╗ ███╗   ███╗    ████████╗██╗   ██╗███╗   ███╗██████╗ ██╗     ███████╗██╗    ██╗███████╗███████╗██████╗ 
+			╚══██╔══╝██╔════╝██╔══██╗████╗ ████║    ╚══██╔══╝██║   ██║████╗ ████║██╔══██╗██║     ██╔════╝██║    ██║██╔════╝██╔════╝██╔══██╗
+			   ██║   █████╗  ███████║██╔████╔██║       ██║   ██║   ██║██╔████╔██║██████╔╝██║     █████╗  ██║ █╗ ██║█████╗  █████╗  ██║  ██║
+			   ██║   ██╔══╝  ██╔══██║██║╚██╔╝██║       ██║   ██║   ██║██║╚██╔╝██║██╔══██╗██║     ██╔══╝  ██║███╗██║██╔══╝  ██╔══╝  ██║  ██║
+			   ██║   ███████╗██║  ██║██║ ╚═╝ ██║       ██║   ╚██████╔╝██║ ╚═╝ ██║██████╔╝███████╗███████╗╚███╔███╔╝███████╗███████╗██████╔╝
+			   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝       ╚═╝    ╚═════╝ ╚═╝     ╚═╝╚═════╝ ╚══════╝╚══════╝ ╚══╝╚══╝ ╚══════╝╚══════╝╚═════╝ 
+			 ██╗ ██╗ ██████╗  ██████╗  █████╗ ██████╗ ████████╗ ██████╗ ███╗   ███╗ █████╗ ██████╗ ███████╗                                
+			████████╗██╔══██╗██╔═══██╗██╔══██╗██╔══██╗╚══██╔══╝██╔═══██╗████╗ ████║██╔══██╗██╔══██╗██╔════╝                                
+			╚██╔═██╔╝██████╔╝██║   ██║███████║██║  ██║   ██║   ██║   ██║██╔████╔██║███████║██████╔╝███████╗                                
+			████████╗██╔══██╗██║   ██║██╔══██║██║  ██║   ██║   ██║   ██║██║╚██╔╝██║██╔══██║██╔══██╗╚════██║                                
+			╚██╔═██╔╝██║  ██║╚██████╔╝██║  ██║██████╔╝   ██║   ╚██████╔╝██║ ╚═╝ ██║██║  ██║██║  ██║███████║                                
+			 ╚═╝ ╚═╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝    ╚═╝    ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝"""
+		print(message)
+
+
