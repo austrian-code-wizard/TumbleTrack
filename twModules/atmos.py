@@ -44,7 +44,7 @@ class Atmos(Controller):
 	async def _process_outgoing_data(self) -> bool:
 		async for data in self._get_next_outgoing_packet():
 			if data is not False:
-				self._parser.send_dataset(data, self._standard_priority)
+				self._parser.send_dataset(data[2:-2], data[0:2], self._standard_priority) # TODO Quick dirty fix. do properly
 			else:
 				await asyncio.sleep(0.1)
 			if self._is_running is False:
