@@ -194,7 +194,7 @@ class Parser:
 
 	def stop(self) -> bool:
 		self._is_running = False
-		sleep(0.5)
+		sleep(1.1)
 		self._loop.call_soon_threadsafe(self._loop.stop)
 		self._thread.join()
 		self._thread = None

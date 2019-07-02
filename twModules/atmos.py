@@ -77,7 +77,7 @@ class Atmos(Controller):
 		self._is_running = False
 		for device in self._devices.keys():
 			self._devices[device].stop()
-		sleep(0.5)
+		sleep(1.1)
 		self._loop.call_soon_threadsafe(self._loop.stop)
 		self._thread.join()
 		self._thread = None
