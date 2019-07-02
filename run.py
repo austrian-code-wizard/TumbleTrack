@@ -1,6 +1,7 @@
 from twHandler.handlerMethods import handler
 from twParser.twParser import Parser
 from twModules.atmos import Atmos
+import signal
 from twDevices.mcp9808 import MCP9808
 from twDevices.testDevice import TestDevice
 from twDevices.mpl2115a2 import MPL3115A2
@@ -17,7 +18,7 @@ if __name__ == "__main__":
 		handler.register_object(parser, "parser")
 		atmos = Atmos(handler, parser)
 		#handler.register_object(atmos, "atmos")
-		#mcp = MCP9808(atmos)
+		mcp = MCP9808(atmos)
 		#mpl = MPL3115A2(atmos)
 		# htu = HTU21DF(atmos)
 		# testdev = TestDevice(atmos)
@@ -29,6 +30,7 @@ if __name__ == "__main__":
 		parser.connect(port="/dev/tty.usbmodem141401")
 		parser.run()
 		atmos.run()
+		signal.pause()
 	except KeyboardInterrupt:
 		atmos.stop()
 		parser.stop()
