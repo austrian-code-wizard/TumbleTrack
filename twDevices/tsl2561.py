@@ -140,6 +140,8 @@ class TSL2561(Sensor):
             lux = (0.00338 * ambient) - (0.0026 * IR)
         elif ratio > 1.3:
             lux = 0
+        else:
+            return 
         print("LUX")
         return lux
 
@@ -148,7 +150,7 @@ class TSL2561(Sensor):
 
     def _measure_value(self):
         """"Read sensor Pixels and return its values in degrees celsius."""
-        return self.readLux()
+        return self.read_lux()
 
     def get_single_measurement(self):
         return self._measure_value()
