@@ -143,7 +143,7 @@ class TSL2561(Sensor):
             lux = 0
         else:
             return
-        print(str(lux))
+        
         return lux
 
     def check(self):
