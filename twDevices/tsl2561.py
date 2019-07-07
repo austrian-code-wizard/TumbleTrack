@@ -90,9 +90,7 @@ class TSL2561(Sensor):
     def read_byte(self, addr=0x8C):
         datal = self._device.readU8(addr)
         datah = self._device.readU8(addr+1)
-        print(str(datal)+"  "+str(datah))
         channel = 256 * datah + datal
-        print(str(channel))
         return channel
 
     def read_fullself(self, reg=0x8C):
@@ -109,7 +107,7 @@ class TSL2561(Sensor):
             self.set_gain(gain)  # low/highGain
             ambient = self.read_fullself()
             IR = self.readIR()
-        elif gain==0: # auto gain
+        elif gain == 0: # auto gain
             self.set_gain(16)  # first try highGain
             ambient = self.read_fullself()
             if ambient < 65535:
