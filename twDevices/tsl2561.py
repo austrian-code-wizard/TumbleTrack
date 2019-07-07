@@ -108,9 +108,11 @@ class TSL2561(Sensor):
             self.set_gain(gain)  # low/highGain
             ambient = self.read_fullself()
             IR = self.readIR()
+            print(str(ambient)+"   1")
         elif gain==0: # auto gain
             self.set_gain(16)  # first try highGain
             ambient = self.read_fullself()
+            print(str(ambient)+"   1")
             if ambient < 65535:
                 IR = self.readIR()
             if ambient >= 65535 or IR >= 65535:  # value(s) exeed(s) datarange
@@ -125,6 +127,7 @@ class TSL2561(Sensor):
            ambient *= 16    # scale 1x to 16x
            IR *= 16         # scale 1x to 16x
 
+        print(str(ambient))
         ratio = (IR / float(ambient))  # changed to make it run under python 2
 
         if self._debug:
@@ -143,7 +146,7 @@ class TSL2561(Sensor):
             lux = 0
         else:
             return
-        print("LUX")
+
         return lux
 
     def check(self):
