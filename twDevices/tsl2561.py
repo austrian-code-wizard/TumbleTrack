@@ -140,7 +140,7 @@ class TSL2561(Sensor):
             lux = (0.00338 * ambient) - (0.0026 * IR)
         elif ratio > 1.3:
             lux = 0
-
+        print("LUX")
         return lux
 
     def check(self):
