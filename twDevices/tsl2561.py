@@ -144,6 +144,7 @@ class TSL2561(Sensor):
         elif ratio > 1.3:
             lux = 0
         else:
+            print("How did i get here")
             return
 
         return lux
@@ -173,9 +174,9 @@ class TSL2561(Sensor):
 
     def start(self, loop):
         self._run = True
+        self._device.write8(0x80, 0x03)  # 0x81 ?                    power up the device
         asyncio.set_event_loop(loop)
         loop.create_task(self._measure_continuously())
-        self._device.write8(0x80, 0x03)  # 0x81 ?                    power up the device
         return None
 
     def stop(self):
