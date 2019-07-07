@@ -103,6 +103,7 @@ class TSL2561(Sensor):
 
     def read_lux(self, gain = 0):
         """Grabs a lux reading either with autoranging (gain=0) or with a specified gain (1, 16)"""
+        ambient = 0.0000000001
         if gain == 1 or gain == 16:
             self.set_gain(gain)  # low/highGain
             ambient = self.read_fullself()
@@ -141,7 +142,7 @@ class TSL2561(Sensor):
         elif ratio > 1.3:
             lux = 0
         else:
-            return 
+            return
         print("LUX")
         return lux
 
