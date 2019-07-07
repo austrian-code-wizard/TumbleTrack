@@ -3,8 +3,6 @@ from time import time
 import asyncio
 import Adafruit_GPIO.I2C as I2C
 from twABCs.sensor import Sensor
-# ausschalten  i2cset -y 1 0x39 0x80 0x00
-# einschalten  i2cset -y 1 0x39 0x80 0x03
 
 
 class TSL2561(Sensor):
@@ -125,9 +123,9 @@ class TSL2561(Sensor):
            IR *= 16         # scale 1x to 16x
 
         try:
-            ratio = (IR / float(ambient))  #TODO: passenden ratio wert für ambiente = 0 finden.
+            ratio = (IR / float(ambient))
         except ZeroDivisionError:
-            ratio = 0.0
+            ratio = 2.0                 # ratio >1.3       ambiente --> 0  --->   ratio -> infinity
 
         if self._debug:
             print("IR Result", IR)
@@ -145,7 +143,7 @@ class TSL2561(Sensor):
             lux = 0
         else:
             return
-
+        print(str(lux))
         return lux
 
     def check(self):
