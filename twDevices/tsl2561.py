@@ -91,10 +91,12 @@ class TSL2561(Sensor):
         datal = self._device.readU8(addr)
         datah = self._device.readU8(addr+1)
         channel = 256 * datah + datal
+        print(str(channel))
         return channel
 
     def read_fullself(self, reg=0x8C):
         """Reads visible+IR diode from the I2C device"""
+        print("reading Full self")
         return self.read_byte(reg)
 
     def readIR(self, reg=0x8E):
@@ -144,7 +146,6 @@ class TSL2561(Sensor):
         elif ratio > 1.3:
             lux = 0
         else:
-            print("How did i get here")
             return
 
         return lux
