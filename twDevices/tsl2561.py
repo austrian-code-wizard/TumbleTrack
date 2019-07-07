@@ -37,7 +37,7 @@ class TSL2561(Sensor):
         self._device = I2C.get_i2c_device(address, busnum=bus)
         self._gain = gain
         self._debug = 0
-
+        self._device.write8(0x80, 0x03)
     """
     def set_gain(self, itime, gain=0x02):
         """ "Set the gain" """
@@ -103,7 +103,6 @@ class TSL2561(Sensor):
 
     def read_lux(self, gain = 0):
         """Grabs a lux reading either with autoranging (gain=0) or with a specified gain (1, 16)"""
-        ambient = 0.0000000001
         if gain == 1 or gain == 16:
             self.set_gain(gain)  # low/highGain
             ambient = self.read_fullself()
@@ -126,11 +125,10 @@ class TSL2561(Sensor):
            IR *= 16         # scale 1x to 16x
 
         try:
-            ratio = (IR / float(ambient))  # changed to make it run under python 2
+            ratio = (IR / float(ambient))  #TODO: passenden ratio wert für ambiente = 0 finden.
         except ZeroDivisionError:
-            print("Ambient equals Zero")
             ratio = 0.0
-            
+
         if self._debug:
             print("IR Result", IR)
             print("Ambient Result", ambient)
