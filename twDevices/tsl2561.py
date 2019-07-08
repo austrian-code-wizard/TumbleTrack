@@ -34,7 +34,7 @@ class TSL2561(Sensor):
         self._name = name
         self._device = I2C.get_i2c_device(address, busnum=bus)
         self._gain = gain
-        #self._device.write8(0x80, 0x03)
+        self._device.write8(0x80, 0x03)
 
     def set_gain(self, gain=1):
         """ Set the gain """
