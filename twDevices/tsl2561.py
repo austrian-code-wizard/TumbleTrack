@@ -34,37 +34,24 @@ class TSL2561(Sensor):
         self._name = name
         self._device = I2C.get_i2c_device(address, busnum=bus)
         self._gain = gain
-        self._debug = 0
-        self._device.write8(0x80, 0x03)
 
     def set_gain(self, gain=1):
-        """ "Set the gain" """
+        """ Set the gain """
         if gain != self._gain:
             if gain == 1:                           #high resolution / scale 1.0
                 self._device.write8(0x81, 0x02)     # set gain = 1X and timing = 402 mSec
-                if self._debug:
-                    print("Setting low gain")
             else:                                   #
                 self._device.write8(0x81, 0x12)     # set gain = 16X and timing = 402 mSec
-                if self._debug:
-                    print("Setting high gain")
             self._gain = gain                     # safe gain for calculation
-            # time.sleep(1)              # pause for integration (self.pause must be bigger than integration time)
+            time.sleep(1)
 
-    def read_word(self, addr=0xAC):
-        data = self._device.readU16(addr)
-        channel0 = 256 * data[0] + data[1]
-        data = self._device.readU16(addr+2)
-        channel1 = 256 * data[0] + data[1]
-        return [channel0, channel1]
-
-    def read_byte(self, addr=0x8C):
+    def read_byte(self, addr):
         datal = self._device.readU8(addr)
         datah = self._device.readU8(addr+1)
         channel = 256 * datah + datal
         return channel
 
-    def read_fullself(self, reg=0x8C):
+    def read_ambient(self, reg=0x8C):
         """Reads visible+IR diode from the I2C device"""
         return self.read_byte(reg)
 
@@ -72,69 +59,25 @@ class TSL2561(Sensor):
         """Reads IR only diode from the I2C device"""
         return self.read_byte(reg)
 
-    def read_lux(self, gain = 0):
-        """Grabs a lux reading either with autoranging (gain=0) or with a specified gain (1, 16)"""
-        if gain == 1 or gain == 16:
-            self.set_gain(gain)  # low/highGain
-            ambient = self.read_fullself()
+    def _get_data(self):
+        if self._gain == 1:
+            ambient = self.read_ambient()
             IR = self.read_ir()
-        elif gain == 0: # auto gain
-            self.set_gain(16)  # first try highGain
-            ambient = self.read_fullself()
+            ambient *= 16  # scale 1x to 16x
+            IR *= 16  # scale 1x to 16x
+
+        elif self._gain == 16:
+            ambient = self.read_ambient()
+            IR = self.read_ir()
+
+        elif self._gain == 0:
+            ambient = self.read_ambient()
             if ambient < 65535:
                 IR = self.read_ir()
             if ambient >= 65535 or IR >= 65535:  # value(s) exeed(s) datarange
-                self.set_gain(1)  # set lowGain
-                ambient = self.read_fullself()
+                ambient = self.read_ambient()
                 IR = self.read_ir()
-        else:
-            print("Gain Value " + str(gain) +" not Valid")
-            return
 
-
-
-        try:
-            ratio = (IR / float(ambient))
-        except ZeroDivisionError:
-            ratio = 2.0                 # ratio >1.3       ambiente --> 0  --->   ratio -> infinity
-
-        if self._debug:
-            print("IR Result", IR)
-            print("Ambient Result", ambient)
-
-        if (ratio >= 0) & (ratio <= 0.52):
-            lux = (0.0315 * ambient) - (0.0593 * ambient * (ratio**1.4))
-        elif ratio <= 0.65:
-            lux = (0.0229 * ambient) - (0.0291 * IR)
-        elif ratio <= 0.80:
-            lux = (0.0157 * ambient) - (0.018 * IR)
-        elif ratio <= 1.3:
-            lux = (0.00338 * ambient) - (0.0026 * IR)
-        elif ratio > 1.3:
-            lux = 0
-        else:
-            return
-
-        return lux
-
-    def _get_data(self):
-        if self._gain == 1:
-            ambient = self.read_fullself()
-            IR = self.read_ir()
-
-            ambient *= 16  # scale 1x to 16x
-            IR *= 16  # scale 1x to 16x
-        elif self._gain == 16:
-            ambient = self.read_fullself()
-            IR = self.read_ir()
-        elif self._gain == 0:
-            self.set_gain(16)  # first try highGain
-            ambient = self.read_fullself()
-            if ambient < 65535:
-                IR = self.read_ir()
-            if ambient >= 65535 or IR >= 65535:  # value(s) exeed(s) datarange   while loop?
-                ambient = self.read_fullself()
-                IR = self.read_ir()
         return IR, ambient
 
     def _convert_to_lux(self, ir, ambient):
@@ -166,11 +109,7 @@ class TSL2561(Sensor):
         data = self._get_data()
         ambient = data[1]
         ir = data[0]
-        print("jjoj")
-        print(str(self.read_lux()))
-        returnval = self._convert_to_lux(ir, ambient)
-        print(str(returnval))
-        return returnval
+        return self._convert_to_lux(ir, ambient)
 
     def get_single_measurement(self):
         return self._measure_value()
