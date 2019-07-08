@@ -166,6 +166,7 @@ class TSL2561(Sensor):
         data = self._get_data()
         ambient = data[1]
         ir = data[0]
+        print(str(self.read_lux()))
         return self._convert_to_lux(ir, ambient)
 
     def get_single_measurement(self):
