@@ -34,7 +34,7 @@ class TSL2561(Sensor):
         self._name = name
         self._device = I2C.get_i2c_device(address, busnum=bus)
         self._gain = gain
-        self._device.write8(0x80, 0x03)
+        #self._device.write8(0x80, 0x03)
 
     def set_gain(self, gain=1):
         """ Set the gain """
@@ -44,7 +44,7 @@ class TSL2561(Sensor):
             else:                                   #
                 self._device.write8(0x81, 0x12)     # set gain = 16X and timing = 402 mSec
             self._gain = gain                     # safe gain for calculation
-            # time.sleep(1)              # pause for integration (self.pause must be bigger than integration time)
+            time.sleep(1)              # pause for integration (self.pause must be bigger than integration time)
 
     def read_byte(self, addr):
         datal = self._device.readU8(addr)
@@ -113,7 +113,7 @@ class TSL2561(Sensor):
         val = self._convert_to_lux(ir, ambient)
         print(val)
         return val
-    
+
     def get_single_measurement(self):
         return self._measure_value()
 
