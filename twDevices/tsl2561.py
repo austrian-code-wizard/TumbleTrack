@@ -36,22 +36,7 @@ class TSL2561(Sensor):
         self._gain = gain
         self._debug = 0
         self._device.write8(0x80, 0x03)
-    """
-    def set_gain(self, itime, gain=0x02):
-        """ "Set the gain" """
-        gain = gain | itime
-        if gain != self._gain:
-            if gain == 1:                           #high resolution / scale 1.0
-                self._device.write8(self.GAIN_REG, 0x02)     # set gain = 1X and timing = 402 mSec
-                if self._debug:
-                    print("Setting low gain")
-            else:                                   #
-                self._device.write8(self.GAIN_REG, 0x12)     # set gain = 16X and timing = 402 mSec
-                if self._debug:
-                    print("Setting high gain")
-            self._gain = gain                     # safe gain for calculation
-            # time.sleep(1)              # pause for integration (self.pause must be bigger than integration time)
-"""
+
     def set_gain(self, gain=1):
         """ "Set the gain" """
         if gain != self._gain:
@@ -65,18 +50,6 @@ class TSL2561(Sensor):
                     print("Setting high gain")
             self._gain = gain                     # safe gain for calculation
             # time.sleep(1)              # pause for integration (self.pause must be bigger than integration time)
-
-    """def read_word(self, reg):
-        """"Reads a word from the I2C device""""
-        try:
-            wordval = self._device.readU16(reg)
-            newval = self.reverseByteOrder(wordval)
-            if self._debug:
-                print("I2C: Device 0x%02X returned 0x%04X from reg 0x%02X" )
-            return newval
-        except IOError:
-            print("Error accessing 0x%02X: Check your I2C address" )
-            return -1"""
 
     def read_word(self, addr=0xAC):
         data = self._device.readU16(addr)
@@ -95,7 +68,7 @@ class TSL2561(Sensor):
         """Reads visible+IR diode from the I2C device"""
         return self.read_byte(reg)
 
-    def readIR(self, reg=0x8E):
+    def read_ir(self, reg=0x8E):
         """Reads IR only diode from the I2C device"""
         return self.read_byte(reg)
 
@@ -104,23 +77,21 @@ class TSL2561(Sensor):
         if gain == 1 or gain == 16:
             self.set_gain(gain)  # low/highGain
             ambient = self.read_fullself()
-            IR = self.readIR()
+            IR = self.read_ir()
         elif gain == 0: # auto gain
             self.set_gain(16)  # first try highGain
             ambient = self.read_fullself()
             if ambient < 65535:
-                IR = self.readIR()
+                IR = self.read_ir()
             if ambient >= 65535 or IR >= 65535:  # value(s) exeed(s) datarange
                 self.set_gain(1)  # set lowGain
                 ambient = self.read_fullself()
-                IR = self.readIR()
+                IR = self.read_ir()
         else:
             print("Gain Value " + str(gain) +" not Valid")
             return
 
-        if self._gain == 1:
-           ambient *= 16    # scale 1x to 16x
-           IR *= 16         # scale 1x to 16x
+
 
         try:
             ratio = (IR / float(ambient))
@@ -143,15 +114,59 @@ class TSL2561(Sensor):
             lux = 0
         else:
             return
-        
+
+        return lux
+
+    def _get_data(self):
+        if self._gain == 1:
+            ambient = self.read_fullself()
+            IR = self.read_ir()
+
+            ambient *= 16  # scale 1x to 16x
+            IR *= 16  # scale 1x to 16x
+        elif self._gain == 16:
+            ambient = self.read_fullself()
+            IR = self.read_ir()
+        elif self._gain == 0:
+            self.set_gain(16)  # first try highGain
+            ambient = self.read_fullself()
+            if ambient < 65535:
+                IR = self.read_ir()
+            if ambient >= 65535 or IR >= 65535:  # value(s) exeed(s) datarange   while loop?
+                ambient = self.read_fullself()
+                IR = self.read_ir()
+        return IR, ambient
+
+    def _convert_to_lux(self, ir, ambient):
+        try:
+            ratio = (ir / float(ambient))
+        except ZeroDivisionError:
+            ratio = 2.0
+
+        if (ratio >= 0) & (ratio <= 0.52):
+            lux = (0.0315 * ambient) - (0.0593 * ambient * (ratio**1.4))
+        elif ratio <= 0.65:
+            lux = (0.0229 * ambient) - (0.0291 * ir)
+        elif ratio <= 0.80:
+            lux = (0.0157 * ambient) - (0.018 * ir)
+        elif ratio <= 1.3:
+            lux = (0.00338 * ambient) - (0.0026 * ir)
+        elif ratio > 1.3:
+            lux = 0
+        else:
+            return
+
         return lux
 
     def check(self):
         return True
 
     def _measure_value(self):
-        """"Read sensor Pixels and return its values in degrees celsius."""
-        return self.read_lux()
+        """"Read sensor Pixels and return its values in lux."""
+        data = self._get_data()
+        ambient = data[1]
+        ir = data[0]
+        return self._convert_to_lux(ir, ambient)
 
     def get_single_measurement(self):
         return self._measure_value()
@@ -178,5 +193,5 @@ class TSL2561(Sensor):
 
     def stop(self):
         self._run = False
-        self._device.write8(0x80, 0x00)  # 0x81 ?                    power up the device
+        self._device.write8(0x80, 0x00)  # 0x81 ?                    shut down the device
         return True
