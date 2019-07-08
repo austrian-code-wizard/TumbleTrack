@@ -7,8 +7,8 @@ from twABCs.sensor import Sensor
 
 class TSL2561(Sensor):
     TSL2561_I2CADDR = 0x49  # 0x39
-    DATA_ADDR_LOW = 0xC
-    DATA_ADDR_HIGH = 0xF
+    ADC_CHANNEL0_LOW = 0x8C
+    ADC_CHANNEL1_LOW = 0x8E
 
     ITIME_100 = 0x00  # Integrationszeit [ms]
     ITIME_200 = 0x01
@@ -34,15 +34,14 @@ class TSL2561(Sensor):
         self._name = name
         self._device = I2C.get_i2c_device(address, busnum=bus)
         self._gain = gain
-        #self._device.write8(0x80, 0x03)
 
     def set_gain(self, gain=1):
         """ Set the gain """
         if gain != self._gain:
             if gain == 1:                           #high resolution / scale 1.0
-                self._device.write8(0x81, 0x02)     # set gain = 1X and timing = 402 mSec
+                self._device.write8(self.GAIN_REG, 0x02)     # set gain = 1X and timing = 402 mSec
             else:                                   #
-                self._device.write8(0x81, 0x12)     # set gain = 16X and timing = 402 mSec
+                self._device.write8(self.GAIN_REG, 0x12)     # set gain = 16X and timing = 402 mSec
             self._gain = gain                     # safe gain for calculation
             time.sleep(1)              # pause for integration (self.pause must be bigger than integration time)
 
@@ -52,11 +51,11 @@ class TSL2561(Sensor):
         channel = 256 * datah + datal
         return channel
 
-    def read_ambient(self, reg=0x8C):
+    def read_ambient(self, reg= ADC_CHANNEL0_LOW):
         """Reads visible+IR diode from the I2C device"""
         return self.read_byte(reg)
 
-    def read_ir(self, reg=0x8E):
+    def read_ir(self, reg=ADC_CHANNEL1_LOW):
         """Reads IR only diode from the I2C device"""
         return self.read_byte(reg)
 
