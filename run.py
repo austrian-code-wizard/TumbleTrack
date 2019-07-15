@@ -27,7 +27,7 @@ if __name__ == "__main__":
 		# ads = ADS1115(atmos)
 		# amg = AMG8833(atmos)
 		# tsl = TSL2561(atmos)
-		ccs = CCS811(atmos)
+		# ccs = CCS811(atmos)
 		parser.connect(port="/dev/tty.usbmodem141401")
 		parser.run()
 		atmos.run()
