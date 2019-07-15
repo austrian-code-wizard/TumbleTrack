@@ -18,7 +18,7 @@ if __name__ == "__main__":
 		handler.register_object(parser, "parser")
 		atmos = Atmos(handler, parser)
 		#handler.register_object(atmos, "atmos")
-		mcp = MCP9808(atmos)
+		# mcp = MCP9808(atmos)
 		#mpl = MPL3115A2(atmos)
 		# htu = HTU21DF(atmos)
 		# testdev = TestDevice(atmos)
