@@ -3,7 +3,7 @@ from time import time
 import asyncio
 import Adafruit_GPIO.I2C as I2C
 from twABCs.sensor import Sensor
-from twTests import Device_test
+from twTesting import device_tests
 
 
 class TSL2561(Sensor):
@@ -103,8 +103,8 @@ class TSL2561(Sensor):
         return lux
 
     def check(self):
-        test = Device_test(self)
-
+        check = device_tests.device_tests(self, self._name)
+        return check.basic_check()
 
     def _measure_value(self):
         """"Read sensor Pixels and return its values in lux."""
