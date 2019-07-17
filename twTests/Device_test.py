@@ -8,15 +8,7 @@ class test():
         'L1': [0, 427000],  # TSL2561
         'T1': [-90, 60],    # MCP9808
         'P1': [0.19, 1.1],  # MPL2115a2
-        'D1': [0, ],         # PMS5003
-
-
-
-
-
-
-
-
+        'D1': [0, 100000],         # PMS5003
     }
 
     def __init__(self, sensor, name):
@@ -25,7 +17,7 @@ class test():
         self.name = name
 
     def check_value(self, value, alt_value = None):
-
+        return
 
     def check_connection(self):
         try:
