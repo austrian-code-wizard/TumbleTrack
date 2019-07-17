@@ -2,6 +2,7 @@ from twHandler.handlerMethods import handler
 from twParser.twParser import Parser
 from twModules.atmos import Atmos
 import signal
+from twTesting import device_tests
 from twDevices.mcp9808 import MCP9808
 from twDevices.testDevice import TestDevice
 from twDevices.mpl2115a2 import MPL3115A2
@@ -28,6 +29,9 @@ if __name__ == "__main__":
 		# amg = AMG8833(atmos)
 		tsl = TSL2561(atmos)
 		# ccs = CCS811(atmos)
+
+		tsl.check()
+		
 		parser.connect(port="/dev/tty.usbmodem141401")
 		parser.run()
 		atmos.run()

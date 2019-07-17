@@ -43,6 +43,7 @@ class device_tests:
     def check_value(self):
         try:
             value = self.sensor.get_single_measurement()
+            return value > values[self.name][0] & value < values[self.name][1]
         except IOError:
             raise SensorConnectionException
 
