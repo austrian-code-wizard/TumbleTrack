@@ -1,4 +1,6 @@
 import serial
+from twTesting import device_tests
+
 
 class ArduinoSerial:
 	def __init__(self, start_flag, end_flag, port=None) -> None:

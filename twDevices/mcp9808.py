@@ -3,6 +3,7 @@ from time import time
 import asyncio
 import Adafruit_GPIO.I2C as I2C
 from twABCs.sensor import Sensor
+from twTesting import device_tests
 
 
 class MCP9808(Sensor):
@@ -44,12 +45,13 @@ class MCP9808(Sensor):
 		"""Start taking temperature measurements. Returns True if the device is
 		initialized, False otherwise.
 		"""
-
+		test = device_tests.device_tests(self)
+		bol = test.simple_check()
 		# Check manufacturer and device ID match expected values.
 		mid = self._device.readU16BE(MCP9808.MCP9808_REG_MANUF_ID)
 		did = self._device.readU16BE(MCP9808.MCP9808_REG_DEVICE_ID)
 		if mid == 0x0054 and did == 0x0400:
-			return True
+			return True & bol
 		else:
 			return False
 

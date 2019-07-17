@@ -104,7 +104,7 @@ class TSL2561(Sensor):
 
     def check(self):
         check = device_tests.device_tests(self, self._name)
-        return check.basic_check()
+        return check.simple_check()
 
     def _measure_value(self):
         """"Read sensor Pixels and return its values in lux."""

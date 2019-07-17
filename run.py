@@ -30,12 +30,12 @@ if __name__ == "__main__":
 		tsl = TSL2561(atmos)
 		# ccs = CCS811(atmos)
 
-		tsl.check()
-		
 		parser.connect(port="/dev/tty.usbmodem141401")
 		parser.run()
 		atmos.run()
 		signal.pause()
+
+		tsl.check()
 	except KeyboardInterrupt:
 		atmos.stop()
 		parser.stop()
