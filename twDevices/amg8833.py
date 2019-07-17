@@ -3,7 +3,7 @@ from time import time
 import asyncio
 import Adafruit_GPIO.I2C as I2C
 from twABCs.sensor import Sensor
-
+from twTesting import device_tests
 
 class AMG8833(Sensor):
     AMG88xx_I2CADDR = 0x68  # sonst 0x69
@@ -65,7 +65,8 @@ class AMG8833(Sensor):
         self._device = I2C.get_i2c_device(address, busnum=bus)
 
     def check(self):
-        return True
+        check = device_tests.device_tests(self, self._name)
+        return check.basic_check()
 
     def _measure_value(self):
         """Read sensor Pixels and return its values in degrees celsius."""
