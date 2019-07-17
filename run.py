@@ -22,7 +22,7 @@ if __name__ == "__main__":
 		# mpl = MPL3115A2(atmos)
 		# htu = HTU21DF(atmos)
 		# testdev = TestDevice(atmos)
-		# pms = PMS5003(atmos)
+		pms = PMS5003(atmos)
 		# gps = UltimateGPS(atmos)
 		# ads = ADS1115(atmos)
 		# amg = AMG8833(atmos)
