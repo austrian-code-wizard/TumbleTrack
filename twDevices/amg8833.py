@@ -65,7 +65,7 @@ class AMG8833(Sensor):
         self._device = I2C.get_i2c_device(address, busnum=bus)
 
     def check(self):
-        check = device_tests.device_tests(self, self._name)
+        check = device_tests.Device_tests(self, self._name)
         return check.simple_check()
 
     def _measure_value(self):

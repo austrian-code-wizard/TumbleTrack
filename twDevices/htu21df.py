@@ -33,11 +33,11 @@ class HTU21DF(Sensor):
 	def check(self) -> bool:
 		"""Check if sensor is connected properly
 		"""
-		check = device_tests.device_tests(self, self._name)
-		bol = check.simple_check()
 		self._device.writeRaw8(HTU21DF.HTU21DF_RESET)
 		sleep(0.015)
 		self._device.writeRaw8(HTU21DF.HTU21DF_READ_REG)
+		check = device_tests.Device_tests(self, self._name)
+		bol = check.simple_check()
 		if not self._device.readRaw8() == HTU21DF.HTU21DF_RESET_REG_VALUE:
 			raise IOError("HTU21D-F device reset failed") # TODO: user an tumbleweed specific error
 		return True & bol

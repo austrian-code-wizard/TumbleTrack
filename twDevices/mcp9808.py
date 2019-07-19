@@ -42,18 +42,11 @@ class MCP9808(Sensor):
 		self._device = I2C.get_i2c_device(address, busnum=bus)
 
 	def check(self):
-		"""Start taking temperature measurements. Returns True if the device is
-		initialized, False otherwise.
-		"""
-		test = device_tests.device_tests(self)
-		bol = test.simple_check()
-		# Check manufacturer and device ID match expected values.
 		mid = self._device.readU16BE(MCP9808.MCP9808_REG_MANUF_ID)
 		did = self._device.readU16BE(MCP9808.MCP9808_REG_DEVICE_ID)
-		if mid == 0x0054 and did == 0x0400:
-			return True & bol
-		else:
-			return False
+		test = device_tests.Device_tests(self)
+		bol = test.simple_check(mid, did)
+		return bol
 
 	def _measure_value(self):
 		"""Read sensor and return its value in degrees celsius."""

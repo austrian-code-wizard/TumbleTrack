@@ -52,17 +52,10 @@ class CCS811(Sensor):
 		self._device = I2C.get_i2c_device(address, busnum=bus)
 
 	def check(self):
-		"""Start taking temperature measurements. Returns True if the device is
-		initialized, False otherwise.
-		"""
-
-		# Check manufacturer and device ID match expected values.
 		mid = self._device.readU16BE(MCP9808.MCP9808_REG_MANUF_ID)
 		did = self._device.readU16BE(MCP9808.MCP9808_REG_DEVICE_ID)
-		if mid == 0x0054 and did == 0x0400:
-			return True
-		else:
-			return False
+		check = device_tests.Device_tests(self, self._name)
+		return check.simple_check(mid, did)
 
 	def _measure_value(self):
 		"""Read sensor and return its value in degrees celsius."""

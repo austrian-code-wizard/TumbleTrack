@@ -21,7 +21,7 @@ class UltimateGPS(Sensor):
 		return
 
 	def check(self) -> bool:
-		check = device_tests.device_tests(self, self._name)
+		check = device_tests.Device_tests(self, self._name)
 		return check.simple_check()
 
 	def _measure_value(self) -> list:
