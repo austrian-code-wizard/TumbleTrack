@@ -6,7 +6,7 @@ import random
 
 class TestDevice:
 
-	def __init__(self, controller, timeout=0.1, address=1, bus=1, name="TEST"):
+	def __init__(self, controller, timeout=0.3, address=1, bus=1, name="TEST"):
 		controller._devices[name] = self
 		self._controller = controller
 		self._timeout = timeout

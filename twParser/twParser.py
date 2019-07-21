@@ -21,6 +21,7 @@ class Parser:
 		self._data_in = Queue()
 		self._data_out = PriorityQueue()
 		self._loop = None
+		self._timeout = 0.01
 		self._is_running = False
 		self._batch_size = 32
 		self._packet_size = 256
@@ -32,10 +33,8 @@ class Parser:
 		self._sensor_id_bytes = 2
 		self._message_id_count = 0
 		self._packet_id_count = 0
-		self._start_message = "start"
-		self._pass_message = "pass"
-		#self._transceiverDevice = ArduinoSerial(self._start_flag, self._end_flag)
-		self._transceiverDevice = TestSerial(self._start_flag, self._end_flag)
+		self._transceiverDevice = ArduinoSerial(self._start_flag, self._end_flag)
+		#self._transceiverDevice = TestSerial(self._start_flag, self._end_flag)
 		self._thread = None
 
 	@staticmethod
@@ -135,32 +134,31 @@ class Parser:
 
 	async def _run_serial_communication(self) -> bool:
 		# TODO: run calls to transceiverDevice in async executor to make them awaitable
-		start = False
-		print("trying to start")  # TODO: logger
-		if self._transceiverDevice is None:
+		if self._transceiverDevice is None or self._transceiverDevice.is_connected() is False:
 			raise ValueError("No transceiver device initialized")
-		while start is False:
-			self._transceiverDevice.write(self._prepare_for_sending(self._start_message.encode()))
-			received_start_message = self._transceiverDevice.receive()
-			if received_start_message == self._start_message:
-				start = True
-				print("starting")  # TODO: logger
+		print("Starting")
 		async for next_packet in self._get_next_outgoing_packet():
+			#await asyncio.sleep(0.1)
 			if next_packet is not False:
-				self._transceiverDevice.write(next_packet.item)
+				self._transceiverDevice.request_to_send()
+				sent = False
+				while not sent:
+					if self._transceiverDevice.new_data_available():
+						if self._transceiverDevice.ready_to_receive():
+							print(f"writing: {next_packet.item}")
+							self._transceiverDevice.write(next_packet.item)
+							sent = True
+						else:
+							self._data_in.put(self._transceiverDevice.receive())
 			else:
-				await asyncio.sleep(1)
-				self._transceiverDevice.write(self._prepare_for_sending(self._pass_message.encode()))
-			try:
-				received_message = self._transceiverDevice.receive()
-			except Exception as e:
-				print(e)
-				received_message = None
-				# TODO: handle properly
-			if received_message != self._pass_message:
-				self._data_in.put(received_message)
-			if self._is_running is False:
-				return True
+				if self._transceiverDevice.new_data_available():
+					if not self._transceiverDevice.ready_to_receive():
+						self._data_in.put(self._transceiverDevice.receive())
+					else:
+						raise Exception("Something is going wrong")
+				else:
+					await asyncio.sleep(self._timeout)
+		return True
 
 	def connect(self, port=None) -> bool:
 		try:
@@ -169,11 +167,6 @@ class Parser:
 			print(e)  # TODO: add logger
 			self._transceiverDevice = None
 			return False
-
-	async def _send_test_message(self):
-		while True:
-			self.send_dataset("hi", 1)
-			await asyncio.sleep(1)
 
 	def _run(self) -> bool:
 		self._is_running = True
@@ -194,7 +187,7 @@ class Parser:
 
 	def stop(self) -> bool:
 		self._is_running = False
-		sleep(1.1)
+		sleep(self._timeout + 0.1)
 		self._loop.call_soon_threadsafe(self._loop.stop)
 		self._thread.join()
 		self._thread = None
