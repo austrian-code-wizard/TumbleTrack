@@ -3,12 +3,29 @@ from time import time
 import asyncio
 import Adafruit_GPIO.I2C as I2C
 from twABCs.sensor import Sensor
+from twTesting import device_tests
 
 
 class TSL2561(Sensor):
     TSL2561_I2CADDR = 0x49  # 0x39
+    ADC_CHANNEL0_LOW = 0x8C
+    ADC_CHANNEL1_LOW = 0x8E
 
-    def __init__(self, controller, timeout=1, address= TSL2561_I2CADDR, bus=1, name="L1", gain = 0):
+    ITIME_100 = 0x00  # Integrationszeit [ms]
+    ITIME_200 = 0x01
+    ITIME_300 = 0x02
+    ITIME_400 = 0x03
+    ITIME_500 = 0x04
+    ITIME_600 = 0x05
+
+    GAIN_REG = 0x81
+
+    GAIN_LOW = 0x00  # low gain (1x)
+    GAIN_MED = 0x10  # medium gain (25x)
+    GAIN_HIGH = 0x20  # high gain (428x)
+    GAIN_MAX = 0x30  # maximum gain (9876x)
+
+    def __init__(self, controller, timeout=1, address= TSL2561_I2CADDR, bus=1, name="L1", gain=0):
         super().__init__()
         self._controller = controller
         controller.register_sensor(self, name)
@@ -18,99 +35,84 @@ class TSL2561(Sensor):
         self._name = name
         self._device = I2C.get_i2c_device(address, busnum=bus)
         self._gain = gain
-        self._debug = 0
-        self._device.write8(0x80, 0x03)  # 0x81 ?
-        print("Device enabled")  # TODO delete this
 
     def set_gain(self, gain=1):
         """ Set the gain """
         if gain != self._gain:
-            if gain == 1:
-                self._device.write8(0x81, 0x02)     # set gain = 1X and timing = 402 mSec
-                if self._debug:
-                    print("Setting low gain")
-            else:
-                self._device.write8(0x81, 0x12)     # set gain = 16X and timing = 402 mSec
-                if self._debug:
-                    print("Setting high gain")
+            if gain == 1:                           #high resolution / scale 1.0
+                self._device.write8(self.GAIN_REG, 0x02)     # set gain = 1X and timing = 402 mSec
+            else:                                   #
+                self._device.write8(self.GAIN_REG, 0x12)     # set gain = 16X and timing = 402 mSec
             self._gain = gain                     # safe gain for calculation
-            # time.sleep(1)              # pause for integration (self.pause must be bigger than integration time)
+            time.sleep(1)              # pause for integration (self.pause must be bigger than integration time)
 
-    def reverseByteOrder(self,data):                # TODO deletet this method
-        """Reverses the byte order of an int (16-bit) or long (32-bit) value."""
-        # Courtesy Vishal Sapre
-        byteCount = len(hex(data)[2:].replace('L', '')[::2])
-        val = 0
-        for i in range(byteCount):
-            val = (val << 8) | (data & 0xff)
-            data >>= 8
-        return val
+    def read_byte(self, addr):
+        datal = self._device.readU8(addr)
+        datah = self._device.readU8(addr+1)
+        channel = 256 * datah + datal
+        return channel
 
-    def read_word(self, reg):
-        """Reads a word from the I2C device"""
-        try:
-            wordval = self._device.readU16(reg)
-            newval = self.reverseByteOrder(wordval)
-            if self._debug:
-                print("I2C: Device 0x%02X returned 0x%04X from reg 0x%02X" )
-            return newval
-        except IOError:
-            print("Error accessing 0x%02X: Check your I2C address" )
-            return -1
-
-    def read_fullself(self, reg=0x8C):
+    def read_ambient(self, reg= ADC_CHANNEL0_LOW):
         """Reads visible+IR diode from the I2C device"""
-        return self.read_word(reg)
+        return self.read_byte(reg)
 
-    def readIR(self, reg=0x8E):
+    def read_ir(self, reg=ADC_CHANNEL1_LOW):
         """Reads IR only diode from the I2C device"""
-        return self.read_word(reg)
+        return self.read_byte(reg)
 
-    def readLux(self, gain = 0):
-        """Grabs a lux reading either with autoranging (gain=0) or with a specified gain (1, 16)"""
-        if gain == 1 or gain == 16:
-            self.set_gain(gain)  # low/highGain
-            ambient = self.read_fullself()
-            IR = self.readIR()
-        elif gain==0: # auto gain
-            self.set_gain(16)  # first try highGain
-            ambient = self.read_fullself()
-            if ambient < 65535:
-                IR = self.readIR()
-            if ambient >= 65535 or IR >= 65535:  # value(s) exeed(s) datarange
-                self.set_gain(1)  # set lowGain
-                ambient = self.read_fullself()
-                IR = self.readIR()
-
+    def _get_data(self):
         if self._gain == 1:
-           ambient *= 16    # scale 1x to 16x
-           IR *= 16         # scale 1x to 16x
+            ambient = self.read_ambient()
+            IR = self.read_ir()
+            ambient *= 16  # scale 1x to 16x
+            IR *= 16  # scale 1x to 16x
 
-        ratio = (IR / float(ambient))  # changed to make it run under python 2
+        elif self._gain == 16:
+            ambient = self.read_ambient()
+            IR = self.read_ir()
 
-        if self._debug:
-            print("IR Result", IR)
-            print("Ambient Result", ambient)
+        elif self._gain == 0:
+            ambient = self.read_ambient()
+            if ambient < 65535:
+                IR = self.read_ir()
+            if ambient >= 65535 or IR >= 65535:  # value(s) exeed(s) datarange
+                ambient = self.read_ambient()
+                IR = self.read_ir()
+
+        return IR, ambient
+
+    def _convert_to_lux(self, ir, ambient):
+        try:
+            ratio = (ir / float(ambient))
+        except ZeroDivisionError:
+            ratio = 2.0
 
         if (ratio >= 0) & (ratio <= 0.52):
             lux = (0.0315 * ambient) - (0.0593 * ambient * (ratio**1.4))
         elif ratio <= 0.65:
-            lux = (0.0229 * ambient) - (0.0291 * IR)
+            lux = (0.0229 * ambient) - (0.0291 * ir)
         elif ratio <= 0.80:
-            lux = (0.0157 * ambient) - (0.018 * IR)
+            lux = (0.0157 * ambient) - (0.018 * ir)
         elif ratio <= 1.3:
-            lux = (0.00338 * ambient) - (0.0026 * IR)
+            lux = (0.00338 * ambient) - (0.0026 * ir)
         elif ratio > 1.3:
             lux = 0
+        else:
+            return
 
         return lux
 
     def check(self):
-        return True
+        check = device_tests.Device_tests(self, self._name)
+        return check.simple_check()
 
     def _measure_value(self):
-        """"Read sensor Pixels and return its values in degrees celsius."""
-        return self.readLux()
+        """"Read sensor Pixels and return its values in lux."""
+        data = self._get_data()
+        ambient = data[1]
+        ir = data[0]
+        val = self._convert_to_lux(ir, ambient)
+        return val
 
     def get_single_measurement(self):
         return self._measure_value()
@@ -130,10 +132,12 @@ class TSL2561(Sensor):
 
     def start(self, loop):
         self._run = True
+        self._device.write8(0x80, 0x03)  # 0x81 ?                    power up the device
         asyncio.set_event_loop(loop)
         loop.create_task(self._measure_continuously())
         return None
 
     def stop(self):
         self._run = False
+        self._device.write8(0x80, 0x00)  # 0x81 ?                    shut down the device
         return True

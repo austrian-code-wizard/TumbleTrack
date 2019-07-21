@@ -4,9 +4,10 @@ import uuid
 
 from twABCs.sensor import Sensor
 from twABCs.controller import Controller
-
+from twTesting import device_tests
 from pypylon import pylon
 import numpy as np
+
 
 class PylonCamSingle(Sensor):
 
@@ -55,7 +56,6 @@ class PylonCamSingle(Sensor):
             return img
         else:
             raise pylon.RuntimeException('Image acquisition failed')
-
 
     async def _measure_continuously(self):
         loop = asyncio.get_running_loop()

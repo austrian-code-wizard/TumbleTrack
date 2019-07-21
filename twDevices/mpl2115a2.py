@@ -3,7 +3,7 @@ from time import time, sleep
 import asyncio
 import Adafruit_GPIO.I2C as I2C
 from twABCs.sensor import Sensor
-
+from twTesting import device_tests
 
 class MPL3115A2(Sensor):
 

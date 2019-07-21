@@ -4,7 +4,7 @@ import asyncio
 import serial
 import struct
 from twABCs.sensor import Sensor
-
+from twTesting import device_tests
 
 class PMS5003(Sensor):
 

@@ -3,6 +3,7 @@ from time import time
 import asyncio
 import gps
 from twABCs.sensor import Sensor
+from twTesting import device_tests
 
 
 class UltimateGPS(Sensor):
@@ -20,10 +21,8 @@ class UltimateGPS(Sensor):
 		return
 
 	def check(self) -> bool:
-		"""Start taking temperature measurements. Returns True if the device is
-		initialized, False otherwise.
-		"""
-		return True
+		check = device_tests.Device_tests(self, self._name)
+		return check.simple_check()
 
 	def _measure_value(self) -> list:
 		"""Read sensor and return its value in degrees celsius."""

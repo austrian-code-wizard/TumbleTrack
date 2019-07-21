@@ -2,7 +2,9 @@ from twExceptions.twExceptions import SensorConnectionException
 from time import time
 import asyncio
 import Adafruit_GPIO.I2C as I2C
+from twDevices.mcp9808 import MCP9808
 from twABCs.sensor import Sensor
+from twTesting import device_tests
 
 
 class CCS811(Sensor):
@@ -50,17 +52,10 @@ class CCS811(Sensor):
 		self._device = I2C.get_i2c_device(address, busnum=bus)
 
 	def check(self):
-		"""Start taking temperature measurements. Returns True if the device is
-		initialized, False otherwise.
-		"""
-
-		# Check manufacturer and device ID match expected values.
 		mid = self._device.readU16BE(MCP9808.MCP9808_REG_MANUF_ID)
 		did = self._device.readU16BE(MCP9808.MCP9808_REG_DEVICE_ID)
-		if mid == 0x0054 and did == 0x0400:
-			return True
-		else:
-			return False
+		check = device_tests.Device_tests(self, self._name)
+		return check.simple_check(mid, did)
 
 	def _measure_value(self):
 		"""Read sensor and return its value in degrees celsius."""
