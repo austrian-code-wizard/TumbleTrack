@@ -179,7 +179,8 @@ ACCEL_RADIUS_LSB_ADDR = 0x67
 ACCEL_RADIUS_MSB_ADDR = 0x68
 MAG_RADIUS_LSB_ADDR = 0x69
 MAG_RADIUS_MSB_ADDR = 0x6A
-data_types = ['euler', 'quaternion', 'gravity', 'linear_acceleration', 'accelerometer', 'gyroscope', 'read_magnetometer']
+data_types = ['euler', 'quaternion', 'gravity', 'linear_acceleration', 'accelerometer', 'gyroscope',
+              'read_magnetometer', 'temperature']
 
 
 class BNO05 (Sensor):
