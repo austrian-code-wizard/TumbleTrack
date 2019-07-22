@@ -1,4 +1,5 @@
 import time
+from time import time
 import asyncio
 import Adafruit_GPIO.I2C as I2C
 from twABCs.sensor import Sensor
