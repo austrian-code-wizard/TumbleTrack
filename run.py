@@ -32,8 +32,8 @@ if __name__ == "__main__":
 		tsl = TSL2561(atmos)
 		# ccs = CCS811(atmos)
 		sht = SHT31D(atmos)
-		# bno = BNO05(atmos)
-		
+		bno = BNO05(atmos)
+		print(bno.get_single_measurement())
 		parser.connect(port="/dev/tty.usbmodem141401")
 		parser.run()
 		atmos.run()
