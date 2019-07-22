@@ -47,7 +47,7 @@ class SHT31D(Sensor):
         #check = sensor_test.sensor_test(self, self._name)
         #return check.full_check()
         return True
-    
+
     def _measure_value(self):
         self._device.write8(SHT31_MEAS_HIGHREP >> 8, SHT31_MEAS_HIGHREP & 0xFF)
         time.sleep(0.015)

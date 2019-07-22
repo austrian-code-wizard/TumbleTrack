@@ -13,14 +13,14 @@ from twDevices.ads1115 import ADS1115
 from twDevices.amg8833 import AMG8833
 from twDevices.tsl2561 import TSL2561
 from twDevices.ccs811 import CCS811
-from twDevices import SHT31D
+from twDevices.sht31d import SHT31D
 
 if __name__ == "__main__":
 	try:
 		parser = Parser(handler)  # make sure that the right transceiver device is selected in Parser.__init__()
 		handler.register_object(parser, "parser")
 		atmos = Atmos(handler, parser)
-		#handler.register_object(atmos, "atmos")
+		# handler.register_object(atmos, "atmos")
 		# mcp = MCP9808(atmos)
 		# mpl = MPL3115A2(atmos)
 		# htu = HTU21DF(atmos)

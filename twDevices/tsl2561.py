@@ -25,7 +25,7 @@ class TSL2561(Sensor):
     GAIN_HIGH = 0x20  # high gain (428x)
     GAIN_MAX = 0x30  # maximum gain (9876x)
 
-    def __init__(self, controller, timeout=1, address= TSL2561_I2CADDR, bus=1, name="L1", gain=0):
+    def __init__(self, controller, timeout=1, address=TSL2561_I2CADDR, bus=1, name="L1", gain=0):
         super().__init__()
         self._controller = controller
         controller.register_sensor(self, name)
