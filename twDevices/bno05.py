@@ -149,11 +149,7 @@ BNO055_SIC_MATRIX_7_LSB_ADDR = 0x51
 BNO055_SIC_MATRIX_7_MSB_ADDR = 0x52
 BNO055_SIC_MATRIX_8_LSB_ADDR = 0x53
 BNO055_SIC_MATRIX_8_MSB_ADDR = 0x54
-DATA_ADRESSES = {
-    'temperature': BNO055_TEMP_ADDR,
-    'quaternion': BNO055_QUATERNION_DATA_W_LSB_ADDR,
-    'gravity': BNO055_GRAVITY_DATA_X_LSB_ADDR,
-}
+
 # Accelerometer Offset registers
 ACCEL_OFFSET_X_LSB_ADDR = 0x55
 ACCEL_OFFSET_X_MSB_ADDR = 0x56
@@ -183,6 +179,8 @@ ACCEL_RADIUS_LSB_ADDR = 0x67
 ACCEL_RADIUS_MSB_ADDR = 0x68
 MAG_RADIUS_LSB_ADDR = 0x69
 MAG_RADIUS_MSB_ADDR = 0x6A
+data_types = ['euler', 'quaternion', 'gravity', 'linear_acceleration', 'accelerometer', 'gyroscope', 'read_magnetometer']
+
 
 class BNO05 (Sensor):
 
@@ -198,11 +196,9 @@ class BNO05 (Sensor):
         self._reading_type = 'euler'
 
     def check(self) -> bool:
-        # Make sure we have the right device
-        if self._read_bytes(BNO05.BNO055_CHIP_ID_ADDR)[0] != BNO05.BNO055_ID:
-            time.sleep(1)  # Wait for the device to boot up
-            if self._read_bytes(BNO05.BNO055_CHIP_ID_ADDR)[0] != BNO05.BNO055_ID:
-                return False    # TODO not finial refactor and redo this use sensor_test class
+        for data in data_types:
+            self.set_reading_type(data)
+            print(self.get_single_measurement())
 
     def _measure_value(self):
         if self._reading_type == 'temperature':
@@ -250,6 +246,9 @@ class BNO05 (Sensor):
                 await asyncio.sleep(delta_time)
         self._active = False
         return True
+
+    def set_reading_type(self, reading_type):
+        self._reading_type = reading_type
 
     def start(self, loop):
         self._run = True

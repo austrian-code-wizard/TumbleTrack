@@ -33,7 +33,7 @@ if __name__ == "__main__":
 		# ccs = CCS811(atmos)
 		sht = SHT31D(atmos)
 		bno = BNO05(atmos)
-		print(bno.get_single_measurement())
+		bno.check()
 		parser.connect(port="/dev/tty.usbmodem141401")
 		parser.run()
 		atmos.run()
