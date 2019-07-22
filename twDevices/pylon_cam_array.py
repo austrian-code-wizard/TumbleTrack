@@ -4,7 +4,7 @@ import uuid
 
 from twABCs.sensor import Sensor
 from twABCs.controller import Controller
-from twTesting import device_tests
+from twTesting import sensor_test
 from pypylon import pylon
 import numpy as np
 

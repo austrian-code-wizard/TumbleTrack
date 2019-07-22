@@ -8,3 +8,7 @@ class TWException(Exception):
 class SensorConnectionException(TWException):
 	def __init__(self, sensor):
 		pass
+
+class SensorInaccuracyException(TWException):
+	def __init__(self,sensor):
+		pass

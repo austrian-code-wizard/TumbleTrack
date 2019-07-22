@@ -3,7 +3,7 @@ from time import time
 import asyncio
 import Adafruit_GPIO.I2C as I2C
 from twABCs.sensor import Sensor
-from twTesting import device_tests
+from twTesting import sensor_test
 
 
 class MCP9808(Sensor):
@@ -44,8 +44,8 @@ class MCP9808(Sensor):
 	def check(self):
 		mid = self._device.readU16BE(MCP9808.MCP9808_REG_MANUF_ID)
 		did = self._device.readU16BE(MCP9808.MCP9808_REG_DEVICE_ID)
-		test = device_tests.Device_tests(self)
-		bol = test.simple_check(mid, did)
+		test = sensor_test.sensor_test(self)
+		bol = test.full_check(mid, did)
 		return bol
 
 	def _measure_value(self):

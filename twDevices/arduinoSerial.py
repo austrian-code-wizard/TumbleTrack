@@ -1,5 +1,5 @@
 import serial
-from twTesting import device_tests
+from twTesting import sensor_test
 
 
 class ArduinoSerial:

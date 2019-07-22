@@ -2,7 +2,7 @@ from twHandler.handlerMethods import handler
 from twParser.twParser import Parser
 from twModules.atmos import Atmos
 import signal
-from twTesting import device_tests
+from twTesting import sensor_test
 from twDevices.mcp9808 import MCP9808
 from twDevices.testDevice import TestDevice
 from twDevices.mpl2115a2 import MPL3115A2
@@ -13,6 +13,7 @@ from twDevices.ads1115 import ADS1115
 from twDevices.amg8833 import AMG8833
 from twDevices.tsl2561 import TSL2561
 from twDevices.ccs811 import CCS811
+from twDevices import SHT31D
 
 if __name__ == "__main__":
 	try:
@@ -30,13 +31,12 @@ if __name__ == "__main__":
 		# amg = AMG8833(atmos)
 		tsl = TSL2561(atmos)
 		# ccs = CCS811(atmos)
-
+		sht = SHT31D(Atmos)
+		
 		parser.connect(port="/dev/tty.usbmodem141401")
 		parser.run()
 		atmos.run()
 		signal.pause()
-
-		tsl.check()
 	except KeyboardInterrupt:
 		atmos.stop()
 		parser.stop()
