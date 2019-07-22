@@ -68,7 +68,6 @@ class SHT31D(Sensor):
 
         raw_humidity = buffer[3] << 8 | buffer[4]
         humidity = 100.0 * raw_humidity / 0xFFFF
-        print(humidity, temperature)
         if self.hum:
             return humidity
         return temperature
