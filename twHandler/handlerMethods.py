@@ -1,4 +1,5 @@
 from twHandler.handler import Handler
+from time import sleep
 
 handler = Handler()
 
@@ -20,6 +21,8 @@ def set_private_value(object, attribute_name, value):
 @handler.register_command
 def confirm_test_message():
 	print("I received a test command!")
+	sleep(2)
+	return "True"
 
 
 @handler.register_command
