@@ -45,7 +45,7 @@ class HTU21DF(Sensor):
 	def _measure_value(self) -> float:
 		"""Read sensor and return its value in humidity in percent."""
 		self._device.writeRaw8(0xE5)
-		res = self._device._bus.read_bytes(self._device._address, 3)
+		res = self._device._bus._read_bytes(self._device._address, 3)
 		h1 = res[0]
 		h2 = res[1]
 		humi_reading = (h1 * 256) + h2
@@ -60,7 +60,7 @@ class HTU21DF(Sensor):
 
 	def _measure_temperature(self) -> float:
 		self._device.writeRaw8(0xE3)
-		res = self._device._bus.read_bytes(self._device._address, 3)
+		res = self._device._bus._read_bytes(self._device._address, 3)
 		t1 = res[0]
 		t2 = res[1]
 		temp_reading = (t1 * 256) + t2

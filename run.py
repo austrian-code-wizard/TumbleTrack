@@ -14,7 +14,7 @@ from twDevices.amg8833 import AMG8833
 from twDevices.tsl2561 import TSL2561
 from twDevices.ccs811 import CCS811
 from twDevices.sht31d import SHT31D
-
+from twDevices.bno05 import BNO05
 if __name__ == "__main__":
 	try:
 		parser = Parser(handler)  # make sure that the right transceiver device is selected in Parser.__init__()
@@ -32,6 +32,7 @@ if __name__ == "__main__":
 		tsl = TSL2561(atmos)
 		# ccs = CCS811(atmos)
 		sht = SHT31D(atmos)
+		bno = BNO05(atmos)
 		print(sht.get_single_measurement())
 		
 		parser.connect(port="/dev/tty.usbmodem141401")
