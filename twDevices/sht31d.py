@@ -51,7 +51,7 @@ class SHT31D(Sensor):
 
     def _measure_value(self):
         self._device.write8(SHT31_MEAS_HIGHREP >> 8, SHT31_MEAS_HIGHREP & 0xFF)
-        time.sleep(0.015)
+        # time.sleep(0.015)
         buffer = self._device.readList(0, 6)
 
         if buffer[2] != self._crc8(buffer[0:2]):
