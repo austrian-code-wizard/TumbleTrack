@@ -4,7 +4,7 @@ import Adafruit_GPIO.I2C as I2C
 from twABCs.sensor import Sensor
 from twTesting import sensor_test
 SHT31_DEFAULT_BUS = 1
-SHT31_I2CADDR = 44
+SHT31_I2CADDR = 0x44
 
 SHT31_MEAS_HIGHREP_STRETCH = 0x2C06
 SHT31_MEAS_MEDREP_STRETCH = 0x2C0D
