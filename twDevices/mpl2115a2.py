@@ -3,7 +3,7 @@ from time import time, sleep
 import asyncio
 import Adafruit_GPIO.I2C as I2C
 from twABCs.sensor import Sensor
-from twTesting import sensor_test
+from twTesting import sensor_test as Test
 
 class MPL3115A2(Sensor):
 
@@ -69,9 +69,19 @@ class MPL3115A2(Sensor):
 		self._device = I2C.get_i2c_device(address, busnum=bus)
 
 	def check(self):
-		val = self._device.readU8(MPL3115A2._MPL3115A2_WHOAMI)
-		check = sensor_test.sensor_test(self, self._name)
-		return check.full_check(val)
+		try:								# TODO check this register MPL3115A2._MPL3115A2_WHOAMI
+			data = self.get_single_measurement()
+			data.append(self._measure_altitude())
+			data.append(self._measure_temperature())
+			data_types = ['pressure', 'altitude', 'temperature']
+			result = True
+			test = Test.sensor_test(self, self._name)
+			for i in range(len(data)):
+				result &= test.test_data(data_types[i], data[i])
+			return result
+		except IOError:
+			print(self._name + "not connected")
+			return False
 
 	def _poll_reg1(self, mask):
 		# Poll the CTRL REG1 value for the specified masked bits to NOT be

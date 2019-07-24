@@ -3,7 +3,7 @@ from time import time
 import asyncio
 import gps
 from twABCs.sensor import Sensor
-from twTesting import sensor_test
+from twTesting import sensor_test as Test
 
 
 class UltimateGPS(Sensor):
@@ -21,11 +21,17 @@ class UltimateGPS(Sensor):
 		return
 
 	def check(self) -> bool:
-		check = sensor_test.sensor_test(self, self._name, ['time', 'lon', 'lat', 'speed'])
-		data = self.get_single_measurement()
-		result = check.check('time', data[0]) and check.check('lon', data[1])
-		result &= check.check('lat', data[2]) and check.check('speed', data[3])
-		return result
+		try:
+			data = self.get_single_measurement()
+			test = Test.sensor_test(self, self._name)
+			data_types = ['time', 'lon', 'lat', 'speed']
+			result = True
+			for i in range(len(data)):
+				result &= test.test_data(data_types[i], data[i])
+			return result
+		except IOError:
+			print(self._name + " not connected")
+			return False
 
 	def _measure_value(self) -> list:
 		# Read temperature register value.

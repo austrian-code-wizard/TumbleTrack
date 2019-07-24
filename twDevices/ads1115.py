@@ -3,7 +3,7 @@ from time import time, sleep
 import asyncio
 import Adafruit_GPIO.I2C as I2C
 from twABCs.sensor import Sensor
-from twTesting import sensor_test
+from twTesting import sensor_test as Test
 
 
 class ADS1115(Sensor):
@@ -79,7 +79,7 @@ class ADS1115(Sensor):
 		self._data_rate = data_rate
 
 	def check(self):
-		return True
+		return True		# TODO implement this
 
 	def _read(self, mux, gain, data_rate, mode):
 		"""Perform an ADC read with the provided mux, gain, data_rate, and mode

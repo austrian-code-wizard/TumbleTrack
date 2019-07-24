@@ -4,7 +4,7 @@ import asyncio
 import Adafruit_GPIO.I2C as I2C
 from twDevices.mcp9808 import MCP9808
 from twABCs.sensor import Sensor
-from twTesting import sensor_test
+from twTesting import sensor_test as Test
 
 
 class CCS811(Sensor):
@@ -52,10 +52,17 @@ class CCS811(Sensor):
 		self._device = I2C.get_i2c_device(address, busnum=bus)
 
 	def check(self):
-		mid = self._device.readU16BE(MCP9808.MCP9808_REG_MANUF_ID)
-		did = self._device.readU16BE(MCP9808.MCP9808_REG_DEVICE_ID)
-		check = sensor_test.sensor_test(self, self._name)
-		return check.full_check(mid, did)
+		try:
+			mid = self._device.readU16BE(MCP9808.MCP9808_REG_MANUF_ID)
+			did = self._device.readU16BE(MCP9808.MCP9808_REG_DEVICE_ID) # TODO implement this test in sensor_test
+			data = self.get_single_measurement()
+			data_types = 'temperature'
+			test = Test.sensor_test(self, self._name)
+			result = test.test_data(data_types, data)
+			return result
+		except IOError:
+			print(self._name + "not connected")
+			return False
 
 	def _measure_value(self):
 		"""Read sensor and return its value in degrees celsius."""

@@ -2,7 +2,7 @@ from twABCs.sensor import Sensor
 from time import time, sleep
 import asyncio
 import Adafruit_GPIO.I2C as I2C
-
+from twTesting import sensor_test as Test
 BNO055_I2C_ADDR = 0x28
 BNO055_ID = 0xA0
 
@@ -179,8 +179,6 @@ ACCEL_RADIUS_LSB_ADDR = 0x67
 ACCEL_RADIUS_MSB_ADDR = 0x68
 MAG_RADIUS_LSB_ADDR = 0x69
 MAG_RADIUS_MSB_ADDR = 0x6A
-data_types = ['euler', 'quaternion', 'gravity', 'linear_acceleration', 'accelerometer', 'gyroscope',
-              'read_magnetometer', 'temperature']
 
 
 class BNO05 (Sensor):
@@ -197,9 +195,19 @@ class BNO05 (Sensor):
         self._reading_type = 'euler'
 
     def check(self) -> bool:
-        for data in data_types:
-            self.set_reading_type(data)
-            print(self.get_single_measurement())
+        try:
+            data_types = ['euler', 'quaternion', 'gravity', 'linear_acceleration', 'accelerometer', 'gyroscope',
+                          'read_magnetometer', 'temperature']
+            test = Test.sensor_test(self, self._name)
+            result = True
+            for type in data_types:
+                self.set_reading_type(type)
+                data = self.get_single_measurement()
+                result &= test.test_data(type, data)
+            return result
+        except IOError:
+            print(self._name + "not connected")
+            return False
 
     def _measure_value(self):
         if self._reading_type == 'temperature':

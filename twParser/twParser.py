@@ -33,8 +33,8 @@ class Parser:
 		self._sensor_id_bytes = 2
 		self._message_id_count = 0
 		self._packet_id_count = 0
-		self._transceiverDevice = ArduinoSerial(self._start_flag, self._end_flag)
-		#self._transceiverDevice = TestSerial(self._start_flag, self._end_flag)
+		# self._transceiverDevice = ArduinoSerial(self._start_flag, self._end_flag)
+		self._transceiverDevice = TestSerial(self._start_flag, self._end_flag)
 		self._thread = None
 
 	@staticmethod

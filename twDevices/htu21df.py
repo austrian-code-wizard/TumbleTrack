@@ -3,7 +3,7 @@ from time import time, sleep
 import asyncio
 import Adafruit_GPIO.I2C as I2C
 from twABCs.sensor import Sensor
-from twTesting import sensor_test
+from twTesting import sensor_test as Test
 
 
 class HTU21DF(Sensor):
@@ -33,14 +33,21 @@ class HTU21DF(Sensor):
 	def check(self) -> bool:
 		"""Check if sensor is connected properly
 		"""
-		self._device.writeRaw8(HTU21DF.HTU21DF_RESET)
-		sleep(0.015)
-		self._device.writeRaw8(HTU21DF.HTU21DF_READ_REG)
-		check = sensor_test.sensor_test(self, self._name)
-		bol = check.full_check()
-		if not self._device.readRaw8() == HTU21DF.HTU21DF_RESET_REG_VALUE:
-			raise IOError("HTU21D-F device reset failed") # TODO: user an tumbleweed specific error
-		return True & bol
+		try:
+			self._device.writeRaw8(HTU21DF.HTU21DF_RESET)
+			sleep(0.015)
+			self._device.writeRaw8(HTU21DF.HTU21DF_READ_REG)
+			if not self._device.readRaw8() == HTU21DF.HTU21DF_RESET_REG_VALUE:
+				raise IOError("HTU21D-F device reset failed")  # TODO: user an tumbleweed specific error and implement this in sensor_test class
+
+			data = self.get_single_measurement()
+			data_types = 'humidity'
+			test = Test.sensor_test(self, self._name)
+			result = test.test_data(data_types, data)
+			return result
+		except IOError:
+			print(self._name + "not connected")
+			return False
 
 	def _measure_value(self) -> float:
 		"""Read sensor and return its value in humidity in percent."""

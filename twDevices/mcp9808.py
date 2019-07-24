@@ -3,7 +3,7 @@ from time import time
 import asyncio
 import Adafruit_GPIO.I2C as I2C
 from twABCs.sensor import Sensor
-from twTesting import sensor_test
+from twTesting import sensor_test as Test
 
 
 class MCP9808(Sensor):
@@ -44,9 +44,17 @@ class MCP9808(Sensor):
 	def check(self):
 		mid = self._device.readU16BE(MCP9808.MCP9808_REG_MANUF_ID)
 		did = self._device.readU16BE(MCP9808.MCP9808_REG_DEVICE_ID)
-		test = sensor_test.sensor_test(self)
-		bol = test.full_check(mid, did)
-		return bol
+		# TODO test those registers
+		try:
+			data = self.get_single_measurement()
+			data_types = 'temperature'
+			test = Test.sensor_test(self, self._name)
+			result = test.test_data(data_types, data)
+			return result
+		except IOError:
+			print(self._name + "not connected")
+			return False
+
 
 	def _measure_value(self):
 		"""Read sensor and return its value in degrees celsius."""

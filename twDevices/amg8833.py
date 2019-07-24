@@ -3,7 +3,7 @@ from time import time
 import asyncio
 import Adafruit_GPIO.I2C as I2C
 from twABCs.sensor import Sensor
-from twTesting import sensor_test
+from twTesting import sensor_test as Test
 
 class AMG8833(Sensor):
     AMG88xx_I2CADDR = 0x68  # sonst 0x69
@@ -65,8 +65,15 @@ class AMG8833(Sensor):
         self._device = I2C.get_i2c_device(address, busnum=bus)
 
     def check(self):
-        check = sensor_test.sensor_test(self, self._name)
-        return check.full_check()
+        try:
+            data = self.get_single_measurement()
+            test = Test.sensor_test(self, self._name)
+            data_type = 'temperature'
+            result = test.test_data(data_type, data[0]) # TODO pass on all pixels or just one?
+            return result
+        except IOError:
+            print(self._name + "not connected")
+            return False
 
     def _measure_value(self):
         """Read sensor Pixels and return its values in degrees celsius."""

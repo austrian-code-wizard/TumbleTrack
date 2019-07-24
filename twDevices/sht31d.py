@@ -3,7 +3,7 @@ from time import time
 import asyncio
 import Adafruit_GPIO.I2C as I2C
 from twABCs.sensor import Sensor
-from twTesting import sensor_test
+from twTesting import sensor_test as Test
 SHT31_DEFAULT_BUS = 1
 SHT31_I2CADDR = 0x44
 
@@ -41,20 +41,28 @@ class SHT31D(Sensor):
         self._device = I2C.get_i2c_device(address, busnum=bus)
         self.hum = True
 
-    def set_mode(self, bol=0):
-        self.hum = bol
+    def set_mode(self, hum=True):
+        self.hum = hum
 
     def check(self) -> bool:
-        #check = sensor_test.sensor_test(self, self._name)
-        #return check.full_check()
-        return True
+        try:
+            self.set_mode(True)
+            data = self.get_single_measurement()
+            self.set_mode(False)
+            data.append(self.get_single_measurement())
+            data_types = ['humidity', 'temperature']
+            result = True
+            test = Test.sensor_test(self, self._name)
+            for i in range(len(data)):
+                result &= test.test_data(data_types[i], data[i])
+            return result
+        except IOError:
+            print(self._name + "not connected")
+            return False
 
     def _measure_value(self):
         self._device.write8(SHT31_MEAS_HIGHREP >> 8, SHT31_MEAS_HIGHREP & 0xFF)
-        now = time()
-        new_now = time()
-        while new_now - now <= 0.015:           # TODO redo this
-            new_now = time()
+        time.sleep(0.015)
         buffer = self._device.readList(0, 6)
 
         if buffer[2] != self._crc8(buffer[0:2]):

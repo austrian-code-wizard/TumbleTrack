@@ -4,7 +4,7 @@ import asyncio
 import serial
 import struct
 from twABCs.sensor import Sensor
-from twTesting import sensor_test
+from twTesting import sensor_test as Test
 
 class PMS5003(Sensor):
 
