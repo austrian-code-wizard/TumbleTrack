@@ -23,6 +23,13 @@ data_types_range = {
         'air quality': [],
         'air components': [],
         'position': [],
+        'euler': [],
+        'quaternion': [],
+        'gravity': [],
+        'linear_acceleration': [],
+        'accelerometer': [],
+        'gyroscope': [],
+        'read_magnetometer': [],
 }
 data_types_actual = {
 }
@@ -42,6 +49,9 @@ class sensor_test:
         def test_data(self, data_type, data):
                 if data_type not in data_types_range:
                         raise TypeError("Invalid Data Type")
+                elif len(data_types_range[data_type]) == 0:
+                        print(data_type + " range not specified")
+                        return True
                 else:
                         limits = data_types_range[data_type]
                         if not data > limits[0] & data < limits[1]:

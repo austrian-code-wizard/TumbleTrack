@@ -135,7 +135,6 @@ class Parser:
 	async def _run_serial_communication(self) -> bool:
 		# TODO: run calls to transceiverDevice in async executor to make them awaitable
 		if self._transceiverDevice is None or self._transceiverDevice.is_connected() is False:
-			print(self._transceiverDevice)
 			raise ValueError("No transceiver device initialized")
 		print("Starting")
 		async for next_packet in self._get_next_outgoing_packet():
