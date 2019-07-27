@@ -21,3 +21,6 @@ class TestSerial:
 
 	def connect(self, port=None):
 		return True
+
+	def is_connected(self):
+		return True		# always connected
