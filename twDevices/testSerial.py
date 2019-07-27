@@ -6,6 +6,7 @@ class TestSerial:
 
 	def __init__(self, start_flag, end_flag, port=None) -> None:
 		self._started = False
+		self._new_data = True
 		pass
 
 	def receive(self) -> str:
@@ -19,6 +20,7 @@ class TestSerial:
 				return "pass"
 
 	def write(self, message: bytes) -> bool:
+		self._new_data = False
 		print(f"I am sending: {message}")
 		return True
 
@@ -32,16 +34,17 @@ class TestSerial:
 		return 'receiving test message'
 
 	def new_data_available(self):
-		return random.randint(0, 100) > 50
+		self._new_data = random.randint(0,1) == 1
+		return self._new_data
 
 	def request_to_send(self):
-		return True
+		return self._new_data
 
 	def ready_to_receive(self):
-		return True
+		return ~self._new_data
 
 	def ready_to_send(self):
-		return True
+		return self._new_data
 
 	def write(self, message: bytes) -> bool:
 		print(message)
