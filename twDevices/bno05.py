@@ -203,6 +203,7 @@ class BNO05 (Sensor):
             for type in data_types:
                 self.set_reading_type(type)
                 data = self.get_single_measurement()
+                print(data)
                 result &= test.test_data(type, data)
             return result
         except IOError:
