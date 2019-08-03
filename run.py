@@ -26,7 +26,7 @@ if __name__ == "__main__":
 		handler.register_object(atmos, "atmos")
 		mcp = MCP9808(atmos)
 		mpl = MPL3115A2(atmos)
-		htu = HTU21DF(atmos)
+		# htu = HTU21DF(atmos) # TODO HTU READING REGISTER AND METHOD FIX
 		# testdev = TestDevice(atmos)
 		# pms = PMS5003(atmos)
 		# gps = UltimateGPS(atmos)
@@ -45,7 +45,6 @@ if __name__ == "__main__":
 			sleep(2.0)
 			print(ads.get_single_measurement())
 			print(tsl.get_single_measurement())
-			print(htu.get_single_measurement())
 			print(mcp.get_single_measurement())
 			print(mpl.get_single_measurement())
 			print(sht.get_single_measurement())
