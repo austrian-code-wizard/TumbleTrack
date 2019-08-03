@@ -34,7 +34,7 @@ class TestSerial:
 		return 'receiving test message'
 
 	def new_data_available(self):
-		self._new_data = random.randint(0,1) == 1
+		self._new_data = random.randint(0, 1) == 1
 		return self._new_data
 
 	def request_to_send(self):
