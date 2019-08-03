@@ -43,11 +43,11 @@ if __name__ == "__main__":
 		run = True
 		while run:
 			sleep(2.0)
-			print(ads.get_single_measurement())
-			print(tsl.get_single_measurement())
-			print(mcp.get_single_measurement())
-
-			print(sht.get_single_measurement())
+			print("DATA:")
+			print("ADS: " + ads.get_single_measurement())
+			print("TSL(InfraRed): " + tsl.get_single_measurement())
+			print("MCP(Temp): " + mcp.get_single_measurement())
+			print("SHT(hum): " + sht.get_single_measurement())
 
 
 		parser.connect(port="/dev/tty.usbmodem141401")
