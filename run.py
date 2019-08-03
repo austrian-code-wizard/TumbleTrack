@@ -44,7 +44,7 @@ if __name__ == "__main__":
 		while run:
 			sleep(2.0)
 			print("DATA:")
-			print("ADS: [" + ads.get_single_measurement()[0] + ", " + ads.get_single_measurement()[1] + ", " + ads.get_single_measurement()[2] + ", " + ads.get_single_measurement()[3] + "]")
+			print("ADS: [" + str(ads.get_single_measurement()[0]) + ", " + str(ads.get_single_measurement()[0]) + ", " + str(ads.get_single_measurement()[0]) + ", " + str(ads.get_single_measurement()[0]) + "]")
 			print("TSL(InfraRed): " + tsl.get_single_measurement())
 			print("MCP(Temp): " + mcp.get_single_measurement())
 			print("SHT(hum): " + sht.get_single_measurement())
