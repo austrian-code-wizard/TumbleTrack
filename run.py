@@ -15,6 +15,9 @@ from twDevices.tsl2561 import TSL2561
 from twDevices.ccs811 import CCS811
 from twDevices.sht31d import SHT31D
 from twDevices.bno05 import BNO05
+
+
+from time import sleep
 if __name__ == "__main__":
 	try:
 		parser = Parser(handler)  # make sure that the right transceiver device is selected in Parser.__init__()
@@ -37,6 +40,7 @@ if __name__ == "__main__":
 
 		run = True
 		while run:
+			sleep(2.0)
 			print(ads.get_single_measurement())
 			print(tsl.get_single_measurement())
 		parser.connect(port="/dev/tty.usbmodem141401")
