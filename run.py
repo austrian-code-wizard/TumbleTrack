@@ -34,6 +34,11 @@ if __name__ == "__main__":
 		# sht = SHT31D(atmos)
 		# bno = BNO05(atmos)
 		# bno.check()
+
+		run = True
+		while run:
+			print(ads.get_single_measurement())
+			print(tsl.get_single_measurement())
 		parser.connect(port="/dev/tty.usbmodem141401")
 		parser.run()
 		atmos.run()
