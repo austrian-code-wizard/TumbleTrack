@@ -42,13 +42,18 @@ if __name__ == "__main__":
 		#work around for filming Sprinter video
 		run = True
 		while run:
-			sleep(2.0)
+			sleep(3.0)
 			print("DATA:")
+			sleep(0.2)
 			print("ADS: [" + str(ads.get_single_measurement()[0]) + ", " + str(ads.get_single_measurement()[0]) + ", " + str(ads.get_single_measurement()[0]) + ", " + str(ads.get_single_measurement()[0]) + "]")
+			sleep(0.2)
 			print("TSL(InfraRed): " + str(tsl.get_single_measurement()))
+			sleep(0.2)
 			print("MCP(Temp): " + str(mcp.get_single_measurement()))
+			sleep(0.2)
 			print("SHT(hum): " + str(sht.get_single_measurement()))
-
+			print("")
+			print("")
 
 		parser.connect(port="/dev/tty.usbmodem141401")
 		parser.run()
