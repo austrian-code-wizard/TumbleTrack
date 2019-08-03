@@ -45,9 +45,9 @@ if __name__ == "__main__":
 			sleep(2.0)
 			print("DATA:")
 			print("ADS: [" + str(ads.get_single_measurement()[0]) + ", " + str(ads.get_single_measurement()[0]) + ", " + str(ads.get_single_measurement()[0]) + ", " + str(ads.get_single_measurement()[0]) + "]")
-			print("TSL(InfraRed): " + tsl.get_single_measurement())
-			print("MCP(Temp): " + mcp.get_single_measurement())
-			print("SHT(hum): " + sht.get_single_measurement())
+			print("TSL(InfraRed): " + str(tsl.get_single_measurement()))
+			print("MCP(Temp): " + str(mcp.get_single_measurement()))
+			print("SHT(hum): " + str(sht.get_single_measurement()))
 
 
 		parser.connect(port="/dev/tty.usbmodem141401")
