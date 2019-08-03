@@ -67,7 +67,6 @@ class MPL3115A2(Sensor):
 		self._active = False
 		self._name = name
 		self._device = I2C.get_i2c_device(address, busnum=bus)
-		self._ctrl_reg1
 
 	def check(self):
 		try:								# TODO check this register MPL3115A2._MPL3115A2_WHOAMI
