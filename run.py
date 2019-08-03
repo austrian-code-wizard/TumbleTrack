@@ -24,9 +24,9 @@ if __name__ == "__main__":
 		handler.register_object(parser, "parser")
 		atmos = Atmos(handler, parser)
 		handler.register_object(atmos, "atmos")
-		# mcp = MCP9808(atmos)
-		# mpl = MPL3115A2(atmos)
-		# htu = HTU21DF(atmos)
+		mcp = MCP9808(atmos)
+		mpl = MPL3115A2(atmos)
+		htu = HTU21DF(atmos)
 		# testdev = TestDevice(atmos)
 		# pms = PMS5003(atmos)
 		# gps = UltimateGPS(atmos)
@@ -34,15 +34,23 @@ if __name__ == "__main__":
 		# amg = AMG8833(atmos)
 		tsl = TSL2561(atmos)
 		# ccs = CCS811(atmos)
-		# sht = SHT31D(atmos)
+		sht = SHT31D(atmos)
 		# bno = BNO05(atmos)
 		# bno.check()
 
+
+		#work around for filming Sprinter video
 		run = True
 		while run:
 			sleep(2.0)
 			print(ads.get_single_measurement())
 			print(tsl.get_single_measurement())
+			print(htu.get_single_measurement())
+			print(mcp.get_single_measurement())
+			print(mpl.get_single_measurement())
+			print(sht.get_single_measurement())
+
+
 		parser.connect(port="/dev/tty.usbmodem141401")
 		parser.run()
 		atmos.run()
