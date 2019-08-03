@@ -1,5 +1,5 @@
 import time
-from time import time
+from time import time as Time
 import asyncio
 import Adafruit_GPIO.I2C as I2C
 from twABCs.sensor import Sensor
@@ -87,10 +87,10 @@ class SHT31D(Sensor):
         loop = asyncio.get_running_loop()
         self._active = True
         while self._run:
-            end_time = time() + self._timeout
+            end_time = time.time() + self._timeout
             result = await loop.run_in_executor(None, self._measure_value)
             self._controller.receive_data(str(result), self._name)
-            delta_time = end_time - time()
+            delta_time = end_time - time.time()
             if delta_time > 0:
                 await asyncio.sleep(delta_time)
         self._active = False
@@ -108,9 +108,8 @@ class SHT31D(Sensor):
 
     def _crc8(self, buffer):
         """ Polynomial 0x31 (x8 + x5 +x4 +1) """
-
-        polynomial = 0x31;
-        crc = 0xFF;
+        polynomial = 0x31
+        crc = 0xFF
 
         index = 0
         for index in range(0, len(buffer)):
