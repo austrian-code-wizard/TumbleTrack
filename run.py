@@ -23,7 +23,7 @@ if __name__ == "__main__":
 		handler.register_object(atmos, "atmos")
 		# mcp = MCP9808(atmos)
 		# mpl = MPL3115A2(atmos)
-		htu = HTU21DF(atmos)
+		# htu = HTU21DF(atmos)
 		# testdev = TestDevice(atmos)
 		# pms = PMS5003(atmos)
 		# gps = UltimateGPS(atmos)
